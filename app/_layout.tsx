@@ -8,22 +8,15 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
+  console.log(colorScheme)
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === 'light' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+        <Stack.Screen name='mainPage' options={{headerShown: false}} />
+        <Stack.Screen name='login' options={{headerShown: false}} />
+        <Stack.Screen name='+not-found' options={{headerShown: true}} />
       </Stack>
-      <StatusBar style="auto" />
     </ThemeProvider>
   );
 }
