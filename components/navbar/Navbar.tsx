@@ -74,7 +74,6 @@ export default function Navbar() {
                         <User color={"#FF5031"} />
                     </AvatarFallback>
                 </Avatar>
-                <PortalHost />
             </View>
         </View>
     )
