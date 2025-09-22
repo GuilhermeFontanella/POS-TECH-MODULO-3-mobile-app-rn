@@ -11,15 +11,21 @@ import { Text } from '@/components/ui/text';
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Asterisk, Eye, EyeClosed } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image } from 'react-native';
 import Ilustracao from '@/assets/images/Ilustracao1.png'
 import PixelBottom from '@/assets/images/Pixels2.png';
-import PixelTop from '@/assets/images/Pixels1.png'
+import PixelTop from '@/assets/images/Pixels1.png';
+import React from "react";
+import { IUser } from "@/app/models/user.interface";
 
-export default function WelcomeCard() {
+interface WelcomeCardProps {
+    user: IUser
+}
+
+export default function WelcomeCard({user}: WelcomeCardProps) {
     const date = new Date(Date.now());
-
+    
     const formattedDate = date.toLocaleDateString("pt-BR", {
         weekday: "long", 
         year: "numeric",
@@ -46,7 +52,8 @@ export default function WelcomeCard() {
             height: 600,
             marginTop: 24,
             marginLeft: 8,
-            marginRight: 8
+            marginRight: 8,
+            borderColor: 'transparent'
         },
         navbar: {
             zIndex: 1
@@ -66,7 +73,7 @@ export default function WelcomeCard() {
     return (
         <Card style={style.card}>
             <CardHeader>
-                <CardTitle variant={'h1'}>Olá, Joana! :)</CardTitle>
+                <CardTitle variant={'h1'}>Olá, {user?.name}! :)</CardTitle>
                 <CardDescription variant={'h1'}>{formattedDate}</CardDescription>
             </CardHeader>
             <CardContent>
@@ -89,9 +96,9 @@ export default function WelcomeCard() {
                     <Text style={{ marginLeft: 10, marginBottom: 8 }}>Conta corrente</Text>
                     {
                         !isAmmountHidden
-                            ? <Text variant={'h1'}>R$ 2.000,00</Text>
+                            ? <Text variant={'h1'}>R$ {user?.ammount.toFixed(2) ?? '00,00'}</Text>
                             : <View style={style.ammount}>
-                                <Text variant={'h1'}>R$ </Text>
+                                <Text variant={'h1'}>R$ {}</Text>
                                 <Asterisk color={'#FF5031'} />
                                 <Asterisk color={'#FF5031'} />
                                 <Asterisk color={'#FF5031'} />
@@ -105,14 +112,14 @@ export default function WelcomeCard() {
                 <View style={{ justifyContent: 'center', alignContent: 'flex-end', width: '100%', height: '100%', position: 'absolute', bottom: -80, left: 20 }}>
                     <Image
                         source={Ilustracao}
-                        alt="Photo by Drew Beamer (https://unsplash.com/@dbeamer_jpg)"
+                        alt=""
                         className="absolute bottom-0 left-0 right-0 top-0 object-cover"
                     />
                 </View>
                 <View style={{ justifyContent: 'center', alignContent: 'flex-end', width: '100%', height: '100%', position: 'absolute', bottom: -211, left: 270 }}>
                     <Image
                         source={PixelBottom}
-                        alt="Photo by Drew Beamer (https://unsplash.com/@dbeamer_jpg)"
+                        alt=""
                         className="absolute bottom-0 left-0 right-0 top-0 object-cover"
                     />
                 </View>

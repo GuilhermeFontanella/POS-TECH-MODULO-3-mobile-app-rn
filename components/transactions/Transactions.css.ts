@@ -15,8 +15,8 @@ export const Styles = StyleSheet.create({
     flexDirection: 'row',
   },
   card: {
-    backgroundColor: '#CBCBCB',
-    height: 600,
+    backgroundColor: '#FFF',
+    height: 'auto',
     marginTop: 24,
     marginLeft: 8,
     marginRight: 8,
@@ -35,28 +35,19 @@ export const Styles = StyleSheet.create({
   },
   select: {
     width: 300,
-    height: 45,
-    fontSize: 50,
     backgroundColor: 'white',
-    color: 'red !important'
   },
   selectOptions: {
     width: 300,
-    
   },
   button: {
     backgroundColor: '#004D61',
-    width: 200,
+    width: 30,
+    padding: 20,
     margin: 'auto',
     marginTop: 16,
     marginBottom: 16,
-    height: 80,
-    textAlign: 'center'
-  },
-  ammountInput: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center'
+    borderRadius: 20
   },
   fakeInput: {
     flexDirection: 'row',
@@ -68,12 +59,39 @@ export const Styles = StyleSheet.create({
     borderColor: '#000',
     borderStyle: 'solid',
     borderWidth: 1,
-    height: 60,
-    width: 200,
-    paddingLeft: 8
+    height: 36,
   },
   currencyInput: {
-    width: '100%',
+    width: '85%',
     marginBottom: -3,
+  },
+  cardHeader: {
+    flexDirection: 'row', 
+    alignItems: 'center',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 16,
+   
+  },
+  headerContainer: {
+    marginRight: 155
+  },
+  transactionContent: {
+    flexDirection: 'column'
+  },
+  transactionInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  textHeaderTransactionInfo: {
+    marginTop: 12,
+    marginBottom: 16,
+  },
+  textAmmountTransactionInfo: {
+    height: 30,
+    marginLeft: -8,
+    fontSize: 30,
+    fontWeight: 'bold'
   }
 });

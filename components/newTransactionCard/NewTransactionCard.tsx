@@ -27,17 +27,31 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Platform } from 'react-native';
 import CurrencyInput from 'react-native-currency-input';
 import { Styles as style } from './NewTransactionCard.css';
+import React from "react";
+import { IUser } from "@/app/models/user.interface";
+import UserService from "@/app/user.service";
+import { Option } from "@rn-primitives/select";
+import Spinner from "../ui/spinner";
+
+
 
 const transactionOptions = [
   { label: 'Transferência', value: 'transfer' },
   { label: 'Depósito', value: 'deposit' },
   { label: 'Pagar boleto', value: 'pay-bill' },
-  
 ];
 
-export default function NewTransactionCard() {
+interface NewTransactionCardProps {
+    user: IUser,
+    onRegister: () => void;
+}
+
+export default function NewTransactionCard({user, onRegister}: NewTransactionCardProps) {
+    const service: UserService = new UserService();
     const insets = useSafeAreaInsets();
     const [transactionValue, setTransactionValue] = useState<number | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [type, setType] = useState<Option | undefined>(undefined);
 
     const contentInsets = {
         top: insets.top,
@@ -45,6 +59,26 @@ export default function NewTransactionCard() {
         left: 12,
         right: 12,
     };
+
+    const registerNewTransaction = async () => {
+        setIsLoading(true);
+        const payload = {
+            createdAt: new Date().getUTCDate(),
+            userId: user.id,
+            ammount: transactionValue,
+            type: type?.value 
+        };
+        try {
+            const response = await service.registerNewTransaction(payload);
+            onRegister();
+        } catch (error: any) {
+            throw Error(error);
+        } finally {
+            setIsLoading(false);
+            setTransactionValue(null);
+            setType(undefined);
+        }
+    }
 
     return (
         <>
@@ -61,60 +95,69 @@ export default function NewTransactionCard() {
                     />
                 </View>
                 <View style={[style.row, style.mainContent]}>
-                    <Select>
-                    <SelectTrigger style={style.select} className="w-[180px]">
-                        <SelectValue placeholder="Selecione a transação" />
-                    </SelectTrigger>
-                    <SelectContent style={style.selectOptions} insets={contentInsets} className="w-[180px]">
-                        <NativeSelectScrollView>
-                        <SelectGroup>
-                            <SelectLabel>Escolha o tipo de transferência</SelectLabel>
-                            {transactionOptions.map((option) => (
-                            <SelectItem key={Math.random()} label={option.label} value={option.value}>
-                                {option.label}
-                            </SelectItem>
-                            ))}
-                        </SelectGroup>
-                        </NativeSelectScrollView>
-                    </SelectContent>
+                    <Select 
+                        className="text-black" 
+                        onValueChange={setType} 
+                        value={type ?? undefined}
+                        >
+                        <SelectTrigger style={style.select} className="w-[180px]">
+                            <SelectValue 
+                            className="text-black text-2xl" 
+                            placeholder="Selecione a transação" 
+                            />
+                        </SelectTrigger>
+
+                        <SelectContent style={style.selectOptions} insets={contentInsets} className="w-[180px]">
+                            <NativeSelectScrollView>
+                            <SelectGroup>
+                                <SelectLabel className="text-1xl text-white">
+                                Escolha o tipo de transferência
+                                </SelectLabel>
+                                {transactionOptions.map((option) => (
+                                <SelectItem 
+                                    className="text-black" 
+                                    key={option.value} 
+                                    label={option.label} 
+                                    value={option.value}   // 👈 importante
+                                >
+                                    {option.label}
+                                </SelectItem>
+                                ))}
+                            </SelectGroup>
+                            </NativeSelectScrollView>
+                        </SelectContent>
                     </Select>
 
                 </View>
                 <View style={style.mainContent}>
-                    <View style={style.fakeInput}>
-                        {transactionValue !== null && transactionValue > 0 
-                        ? (
-                            <>
-                                <Text style={{color: '#000', marginRight: 8}}>R$</Text>
-                                <CurrencyInput style={style.currencyInput} value={transactionValue} onChangeValue={setTransactionValue} />
-                            </>
-                        )
-                        :  (
-                            <>
-                                <Text style={{color: 'gray', width: '13%'}}>Valor</Text>
-                                <CurrencyInput style={{width: '80%'}} value={transactionValue} onChangeValue={setTransactionValue} />
-                            </>
-                        )  
-
-                        }   
+                    <View style={style.ammountInput}>
+                        <View style={{marginBottom: 16}}>
+                            <Text className="text-2xl">Valor</Text>
+                        </View>
+                        <View style={style.fakeInput}>
+                            <CurrencyInput className="text-3xl" style={style.currencyInput} value={transactionValue} onChangeValue={setTransactionValue} />
+                        </View>
                     </View>
                 </View>
                 <View>
-                    <Button size={'lg'} style={style.button}>
-                        <Text style={{color: 'white'}}>Concluir transação</Text>
+                    <Button disabled={transactionValue === null || type === null} size={'lg'} style={style.button} onPress={registerNewTransaction}>
+                        {isLoading ? (
+                            <Spinner />
+                        ) : (<Text className="text-2xl text-center" style={{color: 'white'}}>Concluir transação</Text>)}
+                       
                     </Button>
                 </View>
                 
             </CardContent>
             <CardFooter>
-                <View style={{ justifyContent: 'center', alignContent: 'flex-end', width: '100%', height: '100%', position: 'absolute', bottom: -80, left: 20 }}>
+                <View style={{ justifyContent: 'center', alignContent: 'flex-end', width: '100%', height: '100%', position: 'absolute', bottom: 50, left: 20 }}>
                     <Image
                         source={Ilustracao2}
                         alt="Photo by Drew Beamer (https://unsplash.com/@dbeamer_jpg)"
                         className="absolute bottom-0 left-0 right-0 top-0 object-cover"
                     />
                 </View>
-                <View style={{ justifyContent: 'center', alignContent: 'flex-end', width: '100%', height: '100%', position: 'absolute', bottom: -211, left: 270 }}>
+                <View style={{ justifyContent: 'center', alignContent: 'flex-end', width: '100%', height: '100%', position: 'absolute', bottom: -65, left: 270 }}>
                     <Image
                         source={PixelBottom}
                         alt="Photo by Drew Beamer (https://unsplash.com/@dbeamer_jpg)"

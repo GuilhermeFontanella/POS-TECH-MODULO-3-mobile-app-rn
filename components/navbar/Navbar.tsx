@@ -3,10 +3,10 @@ import { Text } from '../ui/text';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuGroup, DropdownMenuItem, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { PortalHost } from '@rn-primitives/portal'
 import { AlignJustify, Home, User } from 'lucide-react-native';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useRouter } from 'expo-router';
+import React from 'react'
 
 export default function Navbar() {
     const router = useRouter();
@@ -69,7 +69,7 @@ export default function Navbar() {
 
                     </DropdownMenuContent>
                 </DropdownMenu>
-                <Avatar style={styles.avatar} alt="Zach Nugent's Avatar">
+                <Avatar  style={styles.avatar} alt="Zach Nugent's Avatar">
                     <AvatarFallback>
                         <User color={"#FF5031"} />
                     </AvatarFallback>
