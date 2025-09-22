@@ -8,7 +8,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { PortalHost } from "@rn-primitives/portal";
 
 
-export default function MainPage() {  
+function MainPage() {  
     const style = StyleSheet.create({
         navbar: {
             zIndex: 1
@@ -39,3 +39,5 @@ export default function MainPage() {
         </SafeAreaProvider>
     )
 }
+
+export default MainPage;
