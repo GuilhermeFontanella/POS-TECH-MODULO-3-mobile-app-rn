@@ -1,18 +1,19 @@
-import { ScrollView, View } from "react-native";
+
+import { Button } from "@/components/ui/button";
 import {
     Card,
     CardContent,
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Text } from '@/components/ui/text';
-import { Button } from "@/components/ui/button";
-import { Styles as style } from './Transactions.css';
-import React, { useEffect } from "react";
 import { Icon } from '@/components/ui/icon';
-import { Pencil, Trash2 } from "lucide-react-native";
 import { Separator } from "@/components/ui/separator";
+import { Text } from '@/components/ui/text';
 import { TRANSACTION_TYPE } from "@/constants/transactionType";
+import { Pencil, Trash2 } from "lucide-react-native";
+import React from "react";
+import { ScrollView, View } from "react-native";
+import { Styles as style } from './Transactions.css';
 
 interface TransactionsProps {
     transactions: any[];
