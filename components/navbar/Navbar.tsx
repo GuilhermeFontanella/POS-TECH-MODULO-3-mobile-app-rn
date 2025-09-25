@@ -53,16 +53,16 @@ export default function Navbar() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent insets={contentInsets} sideOffset={-20} className="w-56" align="start">
                         <DropdownMenuGroup>
-                            <DropdownMenuItem onPress={() => router.navigate('/mainPage')}>
+                            <DropdownMenuItem onPress={() => router.push('/mainPage')}>
                                 <Text variant={'p'} >Início</Text>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onPress={() => router.navigate('/+not-found')}>
+                            <DropdownMenuItem onPress={() => router.push('/+not-found')}>
                                 <Text variant={'p'}>Transferências</Text>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onPress={() => router.navigate('/+not-found')}>
+                            <DropdownMenuItem onPress={() => router.push('/+not-found')}>
                                 <Text variant={'p'}>Investimentos</Text>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onPress={() => router.navigate('/+not-found')}>
+                            <DropdownMenuItem onPress={() => router.push('/+not-found')}>
                                 <Text variant={'p'}>Outros serviços</Text>
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
