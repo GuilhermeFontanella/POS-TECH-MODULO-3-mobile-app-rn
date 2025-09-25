@@ -45,7 +45,8 @@ export default function Login() {
                     <Label htmlFor="password">Senha</Label>
                     <Input id="password" placeholder="John"
                     value={password}
-                    onChangeText={setPassword} />
+                    onChangeText={setPassword} 
+                    secureTextEntry={true}/>
                 </View>
                 
                 </View>
@@ -60,7 +61,6 @@ export default function Login() {
                       }
                     } catch (err) {
                       console.error('login error', err);
-                      console.log('Login failed', err);
                     }
                   }}>
                 <Text>Entrar</Text>
