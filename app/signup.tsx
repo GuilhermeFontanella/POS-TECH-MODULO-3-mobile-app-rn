@@ -33,7 +33,7 @@ export default function Signup() {
                     </View>
                     <View className="gap-2">
                         <Label htmlFor="password">Senha</Label>
-                        <Input id="password" placeholder="John Doe"
+                        <Input id="password" placeholder="A senha precisa ter mais de 6 caracteres"
                         value={password}
                         onChangeText={setPassword} />
                     </View>
@@ -52,33 +52,3 @@ export default function Signup() {
     </View>
   )
 }
-
-
-//     <View style={{ flex: 1, justifyContent: 'center', padding: 16 }}>
-//       <Text style={{ fontSize: 24, marginBottom: 16 }}>Sign Up</Text>
-      
-//       <TextInput 
-//         placeholder="Email" 
-//         style={{ borderWidth: 1, marginBottom: 16, padding: 8 }} 
-//         value={email}  
-//         onChangeText={setEmail}
-//       />
-      
-//       <TextInput 
-//         placeholder="Password" 
-//         secureTextEntry 
-//         style={{ borderWidth: 1, marginBottom: 16, padding: 8 }} 
-//         value={password}
-//         onChangeText={setPassword}  
-//       />
-      
-//       <Button title="Sign Up" onPress={() => {
-        
-//         signUp(email, password)
-        
-
-//       }} />
-//       <Link href="/login" style={{ marginTop: 16 }}>Already have an account? Log in</Link>
-//     </View>
-//   );
-// }

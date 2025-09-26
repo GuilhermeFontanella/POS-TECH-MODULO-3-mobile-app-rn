@@ -51,30 +51,24 @@ function MainPage() {
     useEffect(() => {
         if (user) getUserTransactions();
     }, [user]);
-
-
     return (
         <SafeAreaProvider>
-            <SafeAreaView>
+            <SafeAreaView style={{ flex: 1 }}>
                 <KeyboardAwareScrollView
                 enableOnAndroid={true}
                 extraScrollHeight={24}
                 keyboardShouldPersistTaps="handled"
-                showsVerticalScrollIndicator={false}>
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ flexGrow: 1, padding: 16 }}>
                     {user && (
                         <View>
                             <View style={style.navbar}>
                                     <Navbar />
                             </View>
-                            <View>
-                                <WelcomeCard user={user} />
-                            </View>
-                            <View>
-                                <NewTransactionCard user={user} onRegister={() => getUserTransactions()} />
-                            </View>
-                            <View>
-                                <Transactions transactions={transactions} />
-                            </View>
+                             <WelcomeCard user={user} />
+                            <NewTransactionCard user={user} onRegister={() => getUserTransactions()} />
+                            {/* <Transactions transactions={transactions} /> */}
+                            <Transactions/>
                         </View>
                     )}
                 </KeyboardAwareScrollView>

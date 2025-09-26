@@ -43,7 +43,7 @@ export default function Login() {
                 </View>
                 <View className="gap-2">
                     <Label htmlFor="password">Senha</Label>
-                    <Input id="password" placeholder="John"
+                    <Input id="password" placeholder="********"
                     value={password}
                     onChangeText={setPassword} 
                     secureTextEntry={true}/>

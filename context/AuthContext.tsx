@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.log('AuthProvider :: login - usuário logado com sucesso')
             return true
         } catch (error) {
-            
+            router.push('/errorPage')
             console.log('AuthProvider :: login - falha ao logar usuário', error)
             return false
         }
@@ -38,6 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 console.log('AuthProvider :: signUp - usuário cadastrado com sucesso')
             })
             .catch(err => {
+                router.push('/errorPage')
                 console.log('AuthProvider :: signUp - falha', err)
             })
     }
