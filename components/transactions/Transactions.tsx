@@ -365,16 +365,13 @@ const styles = StyleSheet.create({
         marginLeft: 16
     },
     inputDate: { borderWidth: 1, borderColor: '#ccc', padding: 8, borderRadius: 6, marginRight: 8 },
-    inputType: { flex: 1, borderWidth: 1, borderColor: '#ccc', padding: 8, borderRadius: 6, marginRight: 5 },
-    btnCircle: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: '#e0e0e0', marginRight: 0 },
-    header1: { fontSize: 22, fontWeight: 'bold', marginBottom: 8 },
+    inputType: { flex: 1, borderWidth: 1, borderColor: '#ccc', padding: 8, borderRadius: 6, marginRight: 2, },
+    btnCircle: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: '#e0e0e0', marginLeft: 5 },
     alert: { color: 'red', margin: 20 },
     month: { fontSize: 14, fontWeight: '600', marginTop: 12, color: '#47A138', },
     selectData: { fontSize: 16, fontWeight: '600', marginTop: 16 },
     itemRow: { flexDirection: 'row', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#47A138' },
-    description1: { fontSize: 16, fontWeight: '500' },
     amount: { fontSize: 16, color: '#000000', fontWeight: '600', },
-    date1: { fontSize: 12, color: '#666' },
     actions: { flexDirection: 'row', alignItems: 'center' },
     edit: { fontSize: 20, marginHorizontal: 4 },
     delete: { fontSize: 20, marginHorizontal: 4 },
@@ -396,7 +393,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         minWidth: 282,
         width: '96%',
-        minHeight: 480, // equivalente a calc(100vh - 96px)
+        minHeight: 480,
         paddingRight: 10
     },
 
@@ -416,7 +413,7 @@ const styles = StyleSheet.create({
     modalActions: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
-        columnGap: 16 // RN >=0.71; ou use marginRight nos filhos
+        columnGap: 16 
     },
 
     header: {
