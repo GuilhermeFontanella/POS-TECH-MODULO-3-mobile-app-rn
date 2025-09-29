@@ -73,13 +73,13 @@ function MainPage() {
                                 <NewTransactionCard user={user} onRegister={() => getUserTransactions()} />
                             </View>
                             <View>
-                                <Transactions transactions={transactions} />
+                                <Transactions transactions={transactions} user={user} onRegister={() => getUserTransactions()} />
                             </View>
                         </View>
                     )}
                 </KeyboardAwareScrollView>
             </SafeAreaView>
-            <PortalHost />
+            <PortalHost name="root" />
         </SafeAreaProvider>
     )
 }

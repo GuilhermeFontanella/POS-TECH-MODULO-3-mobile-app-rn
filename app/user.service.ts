@@ -36,6 +36,18 @@ class UserService {
             throw new Error(error);
         }
     }
+
+    async editTransaction(data: any) {
+        try {
+            const response = await axios.put(
+                `${this.baseUrl}/user-transactions/${data.id}`,
+                data
+            );
+            return response.status;
+        } catch (error: any) {
+            throw new Error(error);
+        }
+    }
 }
 
 export default UserService;

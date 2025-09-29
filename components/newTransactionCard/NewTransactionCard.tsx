@@ -32,14 +32,7 @@ import { IUser } from "@/app/models/user.interface";
 import UserService from "@/app/user.service";
 import { Option } from "@rn-primitives/select";
 import Spinner from "../ui/spinner";
-
-
-
-const transactionOptions = [
-  { label: 'Transferência', value: 'transfer' },
-  { label: 'Depósito', value: 'deposit' },
-  { label: 'Pagar boleto', value: 'pay-bill' },
-];
+import { transactionOptions } from "@/constants/transactionsOptions";
 
 interface NewTransactionCardProps {
     user: IUser,
@@ -102,12 +95,12 @@ export default function NewTransactionCard({user, onRegister}: NewTransactionCar
                         >
                         <SelectTrigger style={style.select} className="w-[180px]">
                             <SelectValue 
-                            className="text-black text-2xl" 
+                            className="text-black text-1xl" 
                             placeholder="Selecione a transação" 
                             />
                         </SelectTrigger>
 
-                        <SelectContent style={style.selectOptions} insets={contentInsets} className="w-[180px]">
+                        <SelectContent portalHost="root" style={style.selectOptions} insets={contentInsets} className="w-[180px]">
                             <NativeSelectScrollView>
                             <SelectGroup>
                                 <SelectLabel className="text-1xl text-white">
