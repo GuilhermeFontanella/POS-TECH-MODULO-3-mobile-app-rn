@@ -8,8 +8,7 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import transactionService, { Transaction } from '@/app/transaction.service';
-import { db } from '@/firebase/config';
-import { collection, getDocs } from 'firebase/firestore';
+
 
 
 const formatCurrencyBRL = (value: number) =>

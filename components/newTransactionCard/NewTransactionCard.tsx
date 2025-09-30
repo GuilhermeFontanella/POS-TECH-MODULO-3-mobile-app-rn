@@ -291,13 +291,14 @@
 import React, { useState } from "react";
 import {
   View, Text, TouchableOpacity, TextInput, Image, Linking, StyleSheet,
-  ScrollView
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-// import { ScrollView } from "react-native-reanimated/lib/typescript/Animated";
-import PixelTop from '@/assets/images/Pixels3.png';
-import PixelBottom from '@/assets/images/Pixels4.png';
+// import PixelTop from '@/assets/images/Pixels3.png';
+// import PixelBottom from '@/assets/images/Pixels4.png';
+import transactionService, { Transaction } from '@/app/transaction.service';
+import { addDoc, collection, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { db } from "@/firebase/config";
 
 export default function NewTransactionCard() {
   const [receiptName, setReceiptName] = useState<string | null>(null);
@@ -325,17 +326,70 @@ export default function NewTransactionCard() {
     setIsPDF(mime.includes("pdf"));
   };
 
-  const abrirRecibo = () => {
-    if (receiptPreviewUrl) Linking.openURL(receiptPreviewUrl);
-  };
 
   const selectOption = (key: string, label: string) => {
     setSelectedOption(label);
     setIsDropdownOpen(false);
   };
 
-  const addTransaction = () => {
-    console.log("Nova transação:", { selectedOption, value, receiptName });
+  // const addTransaction = () => {
+  //   console.log("Nova transação:", { selectedOption, value, receiptName });
+  // };
+
+  const addTransaction = async () => {
+    try {
+      if (!selectedOption || !value || isNaN(Number(value))) {
+        alert("Preencha todos os campos obrigatórios corretamente.");
+        return;
+      }
+
+      const now = new Date();
+      const month = now.toLocaleString("pt-BR", { month: "long" });
+
+      const categoria = {
+        id: Date.now().toString(),
+        description: selectedOption,
+        date: now.toISOString().split("T")[0],
+        type: "income",
+        amount: Number(value),
+        document: {
+          name: receiptName || null,
+          previewUrl: receiptPreviewUrl || null,
+          format: isImage ? "image" : isPDF ? "pdf" : null,
+        },
+      };
+
+      const q = query(collection(db, "transactions"), where("month", "==", month));
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        const docRef = snapshot.docs[0].ref;
+        const existingData = snapshot.docs[0].data();
+        const updatedCategoria = [...existingData.categoria, categoria];
+
+        await updateDoc(docRef, { categoria: updatedCategoria });
+        console.log("✏️ Categoria adicionada à transação existente");
+      } else {
+        await addDoc(collection(db, "transactions"), {
+          month,
+          categoria: [categoria],
+          createdAt: now.toISOString(),
+        });
+        console.log("🆕 Nova transação criada");
+      }
+
+      // Limpa os campos após salvar
+      setSelectedOption(null);
+      setValue("");
+      setReceiptName(null);
+      setReceiptPreviewUrl(null);
+      setIsImage(false);
+      setIsPDF(false);
+      setIsDropdownOpen(false);
+      console.log("Transação salva com sucesso!");
+    } catch (error) {
+      console.error("Erro ao salvar transação:", error);
+    }
   };
 
   return (

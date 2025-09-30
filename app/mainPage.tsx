@@ -7,14 +7,16 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { PortalHost } from "@rn-primitives/portal";
 import Transactions from "@/components/transactions/Transactions";
-import UserService from "./user.service";
 import { IUser } from "./models/user.interface";
+import transactionService from "./transaction.service";
+import userService from "./user.service";
+
+
 
 
 function MainPage() {  
-    const userService: UserService = new UserService();
-    const [user, setUser] = useState<IUser | null>(null);
-    const [transactions, setTransactions] = useState<any[]>([]);
+    // const [user, setUser] = useState<IUser | null>(null);
+    // const [transactions, setTransactions] = useState<any[]>([]);
 
     const style = StyleSheet.create({
         navbar: {
@@ -22,35 +24,6 @@ function MainPage() {
         },
     });
 
-    const getUserTransactions = async () => {
-        if (user) {
-            try {
-                const response = await userService.getUserTransactions(user.id);
-                //console.log(response)
-                setTransactions(response);
-            } catch (error: any) {
-                throw Error(error);
-            }
-        }
-    }
-
-    const getUserInfo = async () => {
-        try {
-            const response = await userService.getAccountInfo();
-            setUser(response);
-            return response;
-        } catch (error: any) {
-            throw Error(error);
-        }
-    }
-
-    useEffect(() => {
-        getUserInfo();
-    }, []);
-
-    useEffect(() => {
-        if (user) getUserTransactions();
-    }, [user]);
     return (
         <SafeAreaProvider>
             <SafeAreaView style={{ flex: 1 }}>
@@ -60,14 +33,15 @@ function MainPage() {
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ flexGrow: 1, padding: 16 }}>
-                    {user && (
+                    {(
                         <View>
                             <View style={style.navbar}>
                                     <Navbar />
                             </View>
-                             <WelcomeCard user={user} />
-                            <NewTransactionCard user={user} onRegister={() => getUserTransactions()} />
+                             {/* <WelcomeCard user={user} /> */}
+                            {/* <NewTransactionCard user={user} onRegister={() => getUserTransactions()} /> */}
                             {/* <Transactions transactions={transactions} /> */}
+                            <NewTransactionCard/>
                             <Transactions/>
                         </View>
                     )}
