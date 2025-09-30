@@ -39,7 +39,8 @@ export default function Transactions() {
     date: "",
     month: "",
   });
-//usar para incluir mais dados no banco se nescessario
+
+//🔄 usar para incluir mais dados no banco se nescessario
 //   useEffect(() => {
 //   transactionService.populateFirebase();
 // }, []);
@@ -90,7 +91,7 @@ export default function Transactions() {
       type: item.type,
       amount: item.amount.toString(),
       date: item.date,
-      month,
+      month: item.month || month,
     });
     setShowEditModal(true);
   };
@@ -111,8 +112,8 @@ export default function Transactions() {
                 ...c,
                 description: editFields.description,
                 amount: parseFloat(editFields.amount),
-                type: editFields.type as any,
                 date: editFields.date,
+                month: editFields.month,
               }
             : c
         ),
