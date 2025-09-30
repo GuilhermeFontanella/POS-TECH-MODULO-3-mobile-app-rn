@@ -1,41 +1,92 @@
-import axios from 'axios';
+// // services/TransactionService.ts
+// import { db } from '@/firebase/config';
+// import {
+//   collection,
+//   addDoc,
+//   updateDoc,
+//   deleteDoc,
+//   doc,
+//   onSnapshot,
+//   getDocs,
+//   serverTimestamp,
+//   getDoc,
+// } from 'firebase/firestore';
 
-class UserService {
-    baseUrl: string = 'https://68d0a48fe6c0cbeb39a216b9.mockapi.io/byte-bank';
+// export interface Category {
+//   description: string;
+//   amount: number;
+// }
+
+// export interface Transaction {
+//   id?: string;
+//   descricao: string;
+//   categoria: Category[];
+//   createdAt?: any;
+// }
 
 
-    async getAccountInfo() {
-        try {
-            const response = await axios.get(`${this.baseUrl}/users/1`);
-            return response.data;
-        } catch (error: any) {
-            throw new Error(error);
-        }
-    }
+// export interface AccountInfo {
+//   id?: string;
+//   name: string;
+//   email: string;
+//   balance: number;
+//   [key: string]: any;
+// }
 
-    async getUserTransactions(userId: number) {
-        try {
-            const response = await axios.get(`${this.baseUrl}/user-transactions`);
-            const resultsByUserId: any[] = response.data.filter((element: any) => element?.userId === userId);
-            const resultsSorted: any[] = resultsByUserId.sort((a, b) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-            return resultsSorted
-        } catch (error: any) {
-            throw new Error(error);
-        }
-    }
+// class UserService {
+//   async getUserAccountInfo(accountId: string): Promise<AccountInfo> {
+//     try {
+//       const accountRef = doc(db, "accountInfo", accountId);
+//       const snapshot = await getDoc(accountRef);
 
-    async registerNewTransaction(data: any) {
-        try {
-            const response = await axios.post(
-                `${this.baseUrl}/user-transactions`,
-                data
-            );
-            return response.status;
-        } catch (error: any) {
-            throw new Error(error);
-        }
-    }
-}
+//       if (!snapshot.exists()) {
+//         throw new Error("Conta não encontrada");
+//       }
+
+//       return { id: snapshot.id, ...snapshot.data() } as AccountInfo;
+//     } catch (error: any) {
+//       throw new Error("Erro ao buscar dados da conta: " + error.message);
+//     }
+//   }
+// }
+
+// export default new UserService();
+
+
+
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  Timestamp,
+  doc,
+  getDoc,
+} from "firebase/firestore";
+import { User, AccountInfo, Transaction } from "./types";
+import { db } from "@/firebase/config";
+
+const UserService = {
+
+  async getUserByAccountId(accountId: number): Promise<User[]> {
+    const q = query(collection(db, "users"), where("accountId", "==", accountId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))as unknown as User[];
+  },
+
+  async getAccountInfo(accountId: string): Promise<AccountInfo | null> {
+    const q = query(collection(db, "accountInfo"), where("accountId", "==", accountId));
+    const snapshot = await getDocs(q);
+    const docSnap = snapshot.docs[0];
+    return docSnap ? ({ id: docSnap.id, ...docSnap.data() } as unknown as AccountInfo) : null;
+  },
+
+  async getTransactionsByMonth(month: string): Promise<Transaction[]> {
+    const q = query(collection(db, "transactions"), where("month", "==", month));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as unknown as Transaction[];
+  },
+};
 
 export default UserService;

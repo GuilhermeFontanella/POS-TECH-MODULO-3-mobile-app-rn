@@ -1,106 +1,16 @@
 
-// import { Button } from "@/components/ui/button";
-// import {
-//     Card,
-//     CardContent,
-//     CardHeader,
-//     CardTitle,
-// } from '@/components/ui/card';
-// import { Icon } from '@/components/ui/icon';
-// import { Separator } from "@/components/ui/separator";
-// import { Text } from '@/components/ui/text';
-// import { TRANSACTION_TYPE } from "@/constants/transactionType";
-// import { Pencil, Trash2 } from "lucide-react-native";
-// import React from "react";
-// import { ScrollView, View } from "react-native";
-// import { Styles as style } from './Transactions.css';
-
-// interface TransactionsProps {
-//     transactions: any[];
-// }
-
-// export default function Transactions({transactions}: TransactionsProps) {
-
-//     const formatDate = (value: string): string => {
-//         const date = new Date(value);
-//         const day = String(date.getDate()).padStart(2, "0");
-//         const month = String(date.getMonth() + 1).padStart(2, "0");
-//         const year = date.getFullYear();
-//         return `${day}/${month}/${year}`;
-//     };
-
-//     const formatMonth = (value: string): string => {
-//         const fullMonth = new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(new Date(value));
-//         return fullMonth.charAt(0).toUpperCase() + fullMonth.slice(1) ;
-//     };
-
-//     return (
-//         <>
-//         <Card style={style.card}>
-//             <CardHeader style={style.cardHeader}>
-//                 <View style={style.headerContainer}>
-//                     <CardTitle variant={'h1'} className="text-black">
-//                         Extrato
-//                     </CardTitle>
-//                 </View>
-//                 <View style={style.buttonContainer}>
-//                     <Button size={'lg'} style={style.button}>
-//                         <Icon as={Pencil} size={20} />
-//                     </Button> 
-//                     <Button size={'lg'} style={style.button}>
-//                         <Icon as={Trash2} size={20} color={'red'} />
-//                     </Button>
-//                 </View>
-//             </CardHeader>
-//             <CardContent>
-//                 <ScrollView>
-//                 {transactions && transactions.map((element: any) => (
-//                     <View style={style.transactionContent}>
-//                         <View>
-//                             <Text className="text-green-600 text-2xl">{formatMonth(element.createdAt)}</Text>
-//                         </View>
-//                         <View style={style.transactionInfo}>
-//                             <Text className="text-black text-3xl" style={style.textHeaderTransactionInfo}>
-//                                 {TRANSACTION_TYPE[element?.type] ?? element?.type}
-//                             </Text>
-//                             <Text className="text-gray-300 text-2xl">{formatDate(element.createdAt)}</Text>
-//                         </View>
-//                         <View>
-//                             <Text className="text-black" style={style.textAmmountTransactionInfo}> R$ {element?.ammount.toFixed(2)}</Text>
-//                         </View>
-//                         <Separator className="my-4" />
-//                     </View>
-//                 ))}
-//                 </ScrollView>
-//             </CardContent>
-//         </Card>
-//         </>
-//     )
-// }
-
-
-
 import React, { useState, useEffect } from 'react';
 import {
     View, Text, TextInput, TouchableOpacity,
     FlatList, Modal, StyleSheet,
     Platform,
-    ScrollView
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
+import transactionService, { Transaction } from '@/app/transaction.service';
+import { db } from '@/firebase/config';
+import { collection, getDocs } from 'firebase/firestore';
 
-type Transaction = {
-    id: string;
-    month: string;
-    categoria: {
-        id: string;
-        description: string;
-        amount: number;
-        type: 'income' | 'expense' | 'transfer';
-        date: string;
-    }[];
-};
 
 const formatCurrencyBRL = (value: number) =>
     value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -113,108 +23,142 @@ interface TransactionsProps {
 }
 
 export default function Transactions() {
+  const [filters, setFilters] = useState<{ date?: Date; type?: string }>({});
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
-    // Filtros
-    const [filters, setFilters] = useState<{ date?: Date; type?: string }>({});
-    const [showDatePicker, setShowDatePicker] = useState(false);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [filtered, setFiltered] = useState<Transaction[]>([]);
+  const [mensagemErro, setMensagemErro] = useState("");
 
-    // Lista mockada
-    const [transactions, setTransactions] = useState<Transaction[]>([
-        {
-            id: '1',
-            month: 'Setembro',
-            categoria: [
-                { id: 'a1', description: 'Depósito salário', amount: 3500, type: 'income', date: '2025-09-01' },
-                { id: 'a2', description: 'Transferência amigo', amount: -200, type: 'transfer', date: '2025-09-10' },
-                { id: 'a3', description: 'Depósito salário', amount: 3500, type: 'income', date: '2025-09-01' },
-                { id: 'a4', description: 'Transferência amigo', amount: -200, type: 'transfer', date: '2025-09-10' },
-                { id: 'a5', description: 'Depósito salário', amount: 3500, type: 'income', date: '2025-09-01' },
-                { id: 'a6', description: 'Transferência amigo', amount: -200, type: 'transfer', date: '2025-09-10' },
-                { id: 'a7', description: 'Depósito salário', amount: 3500, type: 'income', date: '2025-09-01' },
-                { id: 'a8', description: 'Transferência amigo', amount: -200, type: 'transfer', date: '2025-09-10' },
-            ]
-        }
-    ]);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editItem, setEditItem] = useState<any>(null);
+  const [editFields, setEditFields] = useState({
+    description: "",
+    type: "income",
+    amount: "",
+    date: "",
+    month: "",
+  });
+//usar para incluir mais dados no banco se nescessario
+//   useEffect(() => {
+//   transactionService.populateFirebase();
+// }, []);
 
-    const [filtered, setFiltered] = useState<Transaction[]>([]);
-    const [mensagemErro, setMensagemErro] = useState('');
+  // 🔄 Carrega transações em tempo real
+  useEffect(() => {
+    const unsubscribe = transactionService.subscribeTransactions(setTransactions);
+    return () => unsubscribe();
+  }, []);
 
-    // Modal edição
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [editItem, setEditItem] = useState<any>(null);
-    const [editFields, setEditFields] = useState({ description: '', type: 'income', amount: '', date: '', month: '' });
+  // 🔍 Aplica filtros sempre que filtros ou transações mudam
+  useEffect(() => {
+    applyFilters();
+  }, [filters, transactions]);
 
-    useEffect(() => {
-        applyFilters();
-    }, [filters, transactions]);
+  const applyFilters = () => {
+    let result = [...transactions];
+    if (filters.type) {
+      result = result
+        .map((t) => ({
+          ...t,
+          categoria: t.categoria.filter((c) => c.type === filters.type),
+        }))
+        .filter((t) => t.categoria.length);
+    }
+    if (filters.date) {
+      const d = filters.date.toISOString().split("T")[0];
+      result = result
+        .map((t) => ({
+          ...t,
+          categoria: t.categoria.filter((c) => c.date.startsWith(d)),
+        }))
+        .filter((t) => t.categoria.length);
+    }
+    setFiltered(result);
+    setMensagemErro(result.length === 0 ? "Nenhuma transação encontrada com os filtros aplicados." : "");
+  };
 
-    const applyFilters = () => {
-        let result = [...transactions];
-        if (filters.type) {
-            result = result.map(t => ({
-                ...t,
-                categoria: t.categoria.filter(c => c.type === filters.type)
-            })).filter(t => t.categoria.length);
-        }
-        if (filters.date) {
-            const d = filters.date.toISOString().split('T')[0];
-            result = result.map(t => ({
-                ...t,
-                categoria: t.categoria.filter(c => c.date.startsWith(d))
-            })).filter(t => t.categoria.length);
-        }
-        setFiltered(result);
-        if (result.length === 0) setMensagemErro('Nenhuma transação encontrada com os filtros aplicados.');
-        else setMensagemErro('');
-    };
+  const clearFilters = () => {
+    setFilters({});
+    setMensagemErro("");
+  };
 
-    const clearFilters = () => {
-        setFilters({});
-        setMensagemErro('');
-    };
+  const openEditModal = (transactionId: string, item: any, month: string) => {
+    setEditItem({ transactionId, itemId: item.id });
+    setEditFields({
+      description: item.description,
+      type: item.type,
+      amount: item.amount.toString(),
+      date: item.date,
+      month,
+    });
+    setShowEditModal(true);
+  };
+  
+  const saveEdit = async () => {
+    try {
+    if (!editFields.description || !editFields.amount) return;
+    if (!editItem?.transactionId || !editFields.description || !editFields.amount) {
+    alert("Preencha todos os campos obrigatórios");
+}
+    const updatedTransactions = transactions.map((t) => {
+      if (t.id !== editItem.transactionId) return t;
+      return {
+        ...t,
+        categoria: t.categoria.map((c) =>
+          c.id === editItem.itemId
+            ? {
+                ...c,
+                description: editFields.description,
+                amount: parseFloat(editFields.amount),
+                type: editFields.type as any,
+                date: editFields.date,
+              }
+            : c
+        ),
+      };
+    });
+    // Atualiza no Firestore
+    await transactionService.updateTransaction(editItem.transactionId, {
+      categoria: updatedTransactions.find((t) => t.id === editItem.transactionId)?.categoria || [],
+    });
+    setShowEditModal(false);
+}  catch (error) {
+    console.error("Erro ao salvar edição:", error);
+    alert("Erro ao salvar edição. Verifique os dados e tente novamente.");
+  } 
+  };
 
-    const openEditModal = (transactionId: string, item: any, month: string) => {
-        setEditItem({ transactionId, itemId: item.id });
-        setEditFields({
-            description: item.description,
-            type: item.type,
-            amount: item.amount.toString(),
-            date: item.date,
-            month
-        });
-        setShowEditModal(true);
-    };
 
-    const saveEdit = () => {
-        if (!editFields.description || !editFields.amount) return;
-        setTransactions(prev => prev.map(t => {
-            if (t.id !== editItem.transactionId) return t;
-            return {
-                ...t,
-                categoria: t.categoria.map(c =>
-                    c.id === editItem.itemId ? {
-                        ...c,
-                        description: editFields.description,
-                        amount: parseFloat(editFields.amount),
-                        type: editFields.type as any,
-                        date: editFields.date
-                    } : c
-                )
-            };
-        }));
-        setShowEditModal(false);
-    };
+  const deleteCategoria = async (transactionId: string, itemId: string): Promise<void> => {
+  try {
+    // Atualiza o estado local
+    setTransactions(prevTransactions => {
+      return prevTransactions.map(transaction => {
+        if (transaction.id !== transactionId) return transaction;
 
-    const deleteCategoria = (transactionId: string, itemId: string) => {
-        setTransactions(prev => prev.map(t => {
-            if (t.id !== transactionId) return t;
-            return {
-                ...t,
-                categoria: t.categoria.filter(c => c.id !== itemId)
-            };
-        }).filter(t => t.categoria.length));
-    };
+        const novaCategoria = transaction.categoria.filter(c => c.id !== itemId);
+        return { ...transaction, categoria: novaCategoria };
+      }).filter(transaction => transaction.categoria.length > 0);
+    });
 
+    // Busca a transação original
+    const transaction = transactions.find(t => t.id === transactionId);
+    if (!transaction) return;
+ 
+    // Filtra a categoria atualizada 
+    const updatedCategoria = transaction.categoria.filter(c => c.id !== itemId);
+
+    // Atualiza ou remove no Firestore
+    if (updatedCategoria.length === 0) {
+      const delet = await transactionService.deleteTransaction(transactionId);
+    } else { 
+     const update =  await transactionService.updateTransaction(transaction.id, { categoria: updatedCategoria });
+    }
+  } catch (error) {
+    console.error("Erro ao excluir categoria:", error);
+  }
+};
     return (
         <View style={styles.container}>
             {/* Filtros */}
@@ -250,6 +194,7 @@ export default function Transactions() {
                         <Picker.Item label="Selecione o tipo" value="" />
                         <Picker.Item label="Depósito" value="income" />
                         <Picker.Item label="Transferência" value="transfer" />
+                        <Picker.Item label="Mes" value="month" />
                         <Picker.Item label="Todos" value="" />
                     </Picker>
                     <TouchableOpacity style={styles.btnCircle} onPress={clearFilters}>
@@ -268,7 +213,7 @@ export default function Transactions() {
                     <FlatList
                         data={filtered}
                         style={{ flex: 1 }}
-                        keyExtractor={t => t.id}
+                        keyExtractor={t => t.id.toString()}
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={false}
                         // contentContainerStyle={{ flexGrow: 1, padding: 16 }}
