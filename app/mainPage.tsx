@@ -15,9 +15,6 @@ import userService from "./user.service";
 
 
 function MainPage() {  
-    // const [user, setUser] = useState<IUser | null>(null);
-    // const [transactions, setTransactions] = useState<any[]>([]);
-
     const style = StyleSheet.create({
         navbar: {
             zIndex: 1
@@ -38,9 +35,7 @@ function MainPage() {
                             <View style={style.navbar}>
                                     <Navbar />
                             </View>
-                             {/* <WelcomeCard user={user} /> */}
-                            {/* <NewTransactionCard user={user} onRegister={() => getUserTransactions()} /> */}
-                            {/* <Transactions transactions={transactions} /> */}
+                            <WelcomeCard/>
                             <NewTransactionCard/>
                             <Transactions/>
                         </View>

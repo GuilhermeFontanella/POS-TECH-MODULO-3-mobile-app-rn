@@ -3,5 +3,11 @@
     "source.fixAll": "explicit",
     "source.organizeImports": "never",
     "source.sortMembers": "explicit"
-  }
+  },
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": true,
+    "strings": true
+  },
+  "editor.suggestOnTriggerCharacters": true
 }

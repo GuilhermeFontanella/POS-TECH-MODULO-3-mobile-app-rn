@@ -1,92 +1,73 @@
-// // services/TransactionService.ts
-// import { db } from '@/firebase/config';
-// import {
-//   collection,
-//   addDoc,
-//   updateDoc,
-//   deleteDoc,
-//   doc,
-//   onSnapshot,
-//   getDocs,
-//   serverTimestamp,
-//   getDoc,
-// } from 'firebase/firestore';
-
-// export interface Category {
-//   description: string;
-//   amount: number;
-// }
-
-// export interface Transaction {
-//   id?: string;
-//   descricao: string;
-//   categoria: Category[];
-//   createdAt?: any;
-// }
-
-
-// export interface AccountInfo {
-//   id?: string;
-//   name: string;
-//   email: string;
-//   balance: number;
-//   [key: string]: any;
-// }
-
-// class UserService {
-//   async getUserAccountInfo(accountId: string): Promise<AccountInfo> {
-//     try {
-//       const accountRef = doc(db, "accountInfo", accountId);
-//       const snapshot = await getDoc(accountRef);
-
-//       if (!snapshot.exists()) {
-//         throw new Error("Conta não encontrada");
-//       }
-
-//       return { id: snapshot.id, ...snapshot.data() } as AccountInfo;
-//     } catch (error: any) {
-//       throw new Error("Erro ao buscar dados da conta: " + error.message);
-//     }
-//   }
-// }
-
-// export default new UserService();
-
-
-
+import { db } from "@/firebase/config";
 import {
   collection,
-  addDoc,
   getDocs,
-  query,
-  where,
-  Timestamp,
+  addDoc,
+  updateDoc,
+  deleteDoc,
   doc,
+  onSnapshot,
   getDoc,
+  setDoc,
 } from "firebase/firestore";
-import { User, AccountInfo, Transaction } from "./types";
-import { db } from "@/firebase/config";
 
-const UserService = {
+// Interface do usuário
+export interface User {
+  id: string;
+  name: string;
+  birthDay: string;
+  accountId: string;
+}
 
-  async getUserByAccountId(accountId: number): Promise<User[]> {
-    const q = query(collection(db, "users"), where("accountId", "==", accountId));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))as unknown as User[];
-  },
+class UserService {
+  private collectionRef = collection(db, "users");
 
-  async getAccountInfo(accountId: string): Promise<AccountInfo | null> {
-    const q = query(collection(db, "accountInfo"), where("accountId", "==", accountId));
-    const snapshot = await getDocs(q);
-    const docSnap = snapshot.docs[0];
-    return docSnap ? ({ id: docSnap.id, ...docSnap.data() } as unknown as AccountInfo) : null;
-  },
+  /** 🔹 Observa usuários em tempo real */
+  subscribeUsers(callback: (data: User[]) => void) {
+    return onSnapshot(this.collectionRef, (snapshot) => {
+      const list: User[] = snapshot.docs.map((docSnap) => ({
+        id: docSnap.id,
+        ...(docSnap.data() as Omit<User, "id">),
+      }));
+      callback(list);
+    });
+  }
 
-  async getTransactionsByMonth(month: string): Promise<Transaction[]> {
-    const q = query(collection(db, "transactions"), where("month", "==", month));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as unknown as Transaction[];
-  },
-};
+  /** 🔹 Busca única (sem realtime) */
+  async getUsers(): Promise<User[]> {
+    const snapshot = await getDocs(this.collectionRef);
+    return snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...(docSnap.data() as Omit<User, "id">),
+    }));
+  }
 
-export default UserService;
+  /** 🔹 Busca usuário por ID */
+  async getUserById(id: string): Promise<User | null> {
+    const docRef = doc(db, "users", id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...(docSnap.data() as Omit<User, "id">) };
+    }
+    return null;
+  }
+
+  /** 🔹 Adiciona um novo usuário */
+  async addUser(user: Omit<User, "id">) {
+    return await addDoc(this.collectionRef, user);
+  }
+
+  /** 🔹 Atualiza um usuário */
+  async updateUser(id: string, data: Partial<User>) {
+    const docRef = doc(db, "users", id);
+    return await updateDoc(docRef, data);
+  }
+
+  /** 🔹 Remove um usuário */
+  async deleteUser(id: string) {
+    const docRef = doc(db, "users", id);
+    return await deleteDoc(docRef);
+  }
+}
+
+export default new UserService();

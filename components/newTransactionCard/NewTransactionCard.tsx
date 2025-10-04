@@ -1,293 +1,3 @@
-// import React, { useState } from "react";
-// import {
-//   View,
-//   Text,
-//   StyleSheet,
-//   Image,
-//   TouchableOpacity,
-//   TextInput,
-//   Linking,
-//   ScrollView,
-//   Alert,
-// } from "react-native";
-// import * as DocumentPicker from "expo-document-picker";
-// import { IUser } from "@/app/models/user.interface";
-// import UserService from "@/app/user.service";
-// import { useSafeAreaInsets } from "react-native-safe-area-context";
-// import { Picker } from "@react-native-picker/picker";
-
-// type TransactionType = "cambio" | "docted" | "emprestimo" | null;
-
-
-// interface NewTransactionCardProps {
-//   user: IUser,
-//   onRegister: () => void;
-// }
-
-
-// export default function NewTransactionScreen({ user, onRegister }: NewTransactionCardProps) {
-//   const [receiptName, setReceiptName] = useState<string | null>(null);
-//   const [receiptPreviewUrl, setReceiptPreviewUrl] = useState<string | null>(null);
-//   const [isImage, setIsImage] = useState(false);
-//   const [isPDF, setIsPDF] = useState(false);
-
-//   const service: UserService = new UserService();
-//   const insets = useSafeAreaInsets();
-
-
-//   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-//   const [selectedType, setSelectedType] = useState<TransactionType>(null);
-//   const [formattedValue, setFormattedValue] = useState("");
-
-//   /** ---------- Upload do Recibo ---------- */
-//   const onFileSelected = async () => {
-//     const result = await DocumentPicker.getDocumentAsync({
-//       type: ["image/*", "application/pdf"],
-//     });
-//     if (result.canceled) return;
-
-//     const file = result.assets[0];
-//     setReceiptName(file.name);
-//     setReceiptPreviewUrl(file.uri);
-
-//     const mime = file.mimeType || "";
-//     setIsImage(mime.includes("image"));
-//     setIsPDF(mime.includes("pdf"));
-//   };
-
-//   const abrirRecibo = () => {
-//     if (receiptPreviewUrl) Linking.openURL(receiptPreviewUrl);
-//   };
-
-//   /** ---------- Dropdown ---------- */
-//   const toggleDropdown = () => setIsDropdownOpen((prev) => !prev);
-
-//   const selectOption = (type: TransactionType) => {
-//     setSelectedType(type);
-//     setIsDropdownOpen(false);
-//   };
-
-//   /** ---------- Valor formatado ---------- */
-//   const onValueChange = (text: string) => {
-//     const clean = text.replace(/\D/g, "");
-//     const value = (Number(clean) / 100).toLocaleString("pt-BR", {
-//       style: "currency",
-//       currency: "BRL",
-//     });
-//     setFormattedValue(value);
-//   };
-
-//   /** ---------- Concluir ---------- */
-//   const addTransaction = () => {
-//     console.log("add transaction");
-//     Alert.alert(
-//       "Transação",
-//       `Tipo: ${selectedType || "não selecionado"}\nValor: ${formattedValue || "0"}\nRecibo: ${receiptName || "nenhum"
-//       }`
-//     );
-//   };
-
-//   return (
-//     <ScrollView contentContainerStyle={styles.container}>
-//       {/* Upload de Recibo */}
-//       <View style={styles.section}>
-//         <Text style={styles.label}>Recibo (opcional)</Text>
-//         <TouchableOpacity style={styles.fileButton} onPress={onFileSelected}>
-//           <Text style={styles.fileButtonText}>Selecionar arquivo</Text>
-//         </TouchableOpacity>
-
-//         {receiptName && (
-//           <View style={styles.fileInfo}>
-//             <Text style={{ marginRight: 16 }}>📄 {receiptName}</Text>
-//             <TouchableOpacity style={styles.viewButton} onPress={abrirRecibo}>
-//               <Text style={styles.viewButtonText}>Ver recibo</Text>
-//             </TouchableOpacity>
-//           </View>
-//         )}
-
-//         {isImage && receiptPreviewUrl && (
-//           <Image source={{ uri: receiptPreviewUrl }} style={styles.previewImg} />
-//         )}
-//         {isPDF && receiptPreviewUrl && (
-//           <TouchableOpacity onPress={abrirRecibo}>
-//             <Text style={styles.pdfLink}>📄 Visualizar Recibo PDF</Text>
-//           </TouchableOpacity>
-//         )}
-//       </View>
-
-//       {/* Header */}
-//       <View style={styles.header}>
-//         <Text style={styles.title}>Nova Transação</Text>
-//       </View>
-
-//       {/* Dropdown customizado */}
-
-//       <View style={styles.section}>
-//         <Picker
-//           selectedValue={selectedType}
-//           style={styles.dropdown}    
-//           onValueChange={(value) => selectOption(value as TransactionType)}
-//         >
-//           <Picker.Item label="Selecione o tipo de transação" value="" />
-//           <Picker.Item label="Câmbio de Moeda" value="cambio" />
-//           <Picker.Item label="DOC/TED" value="docted" />
-//           <Picker.Item label="Empréstimo e Financiamento" value="emprestimo" />
-//         </Picker>
-//       </View>
-
-//       {/* <View style={styles.section}>
-//         <TouchableOpacity
-//           style={[styles.dropdown, isDropdownOpen && styles.dropdownOpen]}
-//           onPress={toggleDropdown}
-//         >
-//           <Text style={styles.dropdownText}>
-//             {selectedType
-//               ? {
-//                   cambio: "Câmbio de Moeda",
-//                   docted: "DOC/TED",
-//                   emprestimo: "Empréstimo e Financiamento",
-//                 }[selectedType]
-//               : "Selecione o tipo de transação"}
-//           </Text>
-//         </TouchableOpacity>
-
-//         {isDropdownOpen && (
-//           <View style={styles.dropdownOptions}>
-//             {[
-//               { key: "cambio", label: "Câmbio de Moeda" },
-//               { key: "docted", label: "DOC/TED" },
-//               { key: "emprestimo", label: "Empréstimo e Financiamento" },
-//             ].map((opt) => (
-//               <TouchableOpacity
-//                 key={opt.key}
-//                 style={[
-//                   styles.option,
-//                   selectedType === opt.key && styles.optionSelected,
-//                 ]}
-//                 onPress={() => selectOption(opt.key as TransactionType)}
-//               >
-//                 <Text>{opt.label}</Text>
-//               </TouchableOpacity>
-//             ))}
-//           </View>
-//         )}
-//       </View> */}
-
-//       {/* Valor */}
-//       <View style={styles.section}>
-//         <Text style={styles.label}>Valor</Text>
-//         <TextInput
-//           style={styles.input}
-//           value={formattedValue}
-//           onChangeText={onValueChange}
-//           keyboardType="numeric"
-//           placeholder="00,00"
-//         />
-//       </View>
-
-//       {/* Botão */}
-//       <TouchableOpacity style={styles.primaryBtn} onPress={addTransaction}>
-//         <Text style={styles.primaryBtnText}>Concluir transação</Text>
-//       </TouchableOpacity>
-//     </ScrollView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   // container: {
-//   //   padding: 20,
-//   //   minHeight: 302,
-//   //   display: "flex",
-//   //   backgroundColor: "#CBCBCB",
-//   //   borderRadius: 8,
-//   //   margin: 16,
-//   // },
-//   container: {
-//         flexDirection: 'column',
-//         alignItems: 'center',
-//         paddingTop: 16,
-//         marginTop: 16,
-//         backgroundColor: "#CBCBCB",
-//         borderRadius: 8,
-//         minWidth: 282,
-//         width: '96%',
-//         minHeight: 480, // equivalente a calc(100vh - 96px)
-//         paddingRight: 10
-//     },
-//   section: { marginBottom: 24 },
-//   label: { flex: 1, borderWidth: 1, borderColor: '#ccc', padding: 8, borderRadius: 6, marginRight: 5 },
-//   fileButton: {
-//     padding: 12,
-//     backgroundColor: "#004D61",
-//     borderRadius: 8,
-//     alignItems: "center",
-//   },
-//   fileButtonText: { color: "#fff" },
-//   fileInfo: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     marginTop: 12,
-//   },
-//   viewButton: {
-//     backgroundColor: "#004D61",
-//     paddingHorizontal: 12,
-//     paddingVertical: 6,
-//     borderRadius: 20,
-//   },
-//   viewButtonText: { color: "#fff" },
-//   previewImg: {
-//     width: "100%",
-//     height: 200,
-//     marginTop: 12,
-//     borderRadius: 8,
-//   },
-//   pdfLink: { color: "#007bff", marginTop: 12 },
-//   header: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     marginBottom: 16,
-//   },
-//   title: {
-//     fontSize: 20, fontWeight: "700",
-//     display: "flex",
-//     borderRadius: 8,
-//     color: "#DEE9EA"
-
-//   },
-//   headerImg: { display: "flex", justifyContent: "space-between", zIndex: 1 },
-//   imagemHeader: { position: "absolute", zIndex: 0, right: 0, top: 0 },
-//   dropdown: { flex: 1, borderWidth: 1, borderColor: '#ccc', padding: 8, borderRadius: 6, marginRight: 5 },
-//   // dropdownOpen: { borderColor: "#007bff" },
-//   // dropdownText: { color: "#333" },
-//   // dropdownOptions: {
-//   //   marginTop: 4,
-//   //   borderWidth: 1,
-//   //   borderColor: "#ccc",
-//   //   borderRadius: 8,
-//   //   backgroundColor: "#fff",
-//   // },
-//   option: { padding: 12 },
-//   optionSelected: { backgroundColor: "#e0f7fa" },
-//   input: {
-//     borderWidth: 1,
-//     borderColor: "#004D61",
-//     borderRadius: 8,
-//     padding: 14,
-//     backgroundColor: "#fff",
-//     color: "#333",
-//   },
-//   primaryBtn: {
-//     backgroundColor: "#004D61",
-//     paddingVertical: 16,
-//     borderRadius: 8,
-//     alignItems: "center",
-//     marginTop: 16,
-//   },
-//   primaryBtnText: { color: "#fff", fontSize: 16, fontWeight: "600" },
-
-// });
-
-
 import React, { useState } from "react";
 import {
   View, Text, TouchableOpacity, TextInput, Image, Linking, StyleSheet,
@@ -308,6 +18,7 @@ export default function NewTransactionCard() {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [typeselected, setTypeSelected] = useState<string | null>(null);
   const [value, setValue] = useState("");;
 
   /** ---------- Upload do Recibo ---------- */
@@ -330,6 +41,7 @@ export default function NewTransactionCard() {
   const selectOption = (key: string, label: string) => {
     setSelectedOption(label);
     setIsDropdownOpen(false);
+    setTypeSelected(key); 
   };
 
   // const addTransaction = () => {
@@ -350,7 +62,7 @@ export default function NewTransactionCard() {
         id: Date.now().toString(),
         description: selectedOption,
         date: now.toISOString().split("T")[0],
-        type: "income",
+        type: typeselected,
         amount: Number(value),
         document: {
           name: receiptName || null,
@@ -433,14 +145,14 @@ export default function NewTransactionCard() {
 
           {isDropdownOpen && (
             <View style={styles.dropdownOptions}>
-              <TouchableOpacity style={styles.option} onPress={() => selectOption("cambio", "Câmbio de Moeda")}>
-                <Text>Câmbio de Moeda</Text>
+              <TouchableOpacity style={styles.option} onPress={() => selectOption("income", "Depósito")}>
+                <Text>Depósito</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.option} onPress={() => selectOption("docted", "DOC/TED")}>
-                <Text>DOC/TED</Text>
+              <TouchableOpacity style={styles.option} onPress={() => selectOption("expense", "Despesa")}>
+                <Text>Despesa</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.option} onPress={() => selectOption("emprestimo", "Empréstimo e Financiamento")}>
-                <Text>Empréstimo e Financiamento</Text>
+              <TouchableOpacity style={styles.option} onPress={() => selectOption("transfer", "Transferência")}>
+                <Text>Transferência</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -485,7 +197,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#CBCBCB",
     borderRadius: 8,
     minWidth: 282,
-    width: '96%',
+    width: '100%',
     minHeight: 480,
     paddingRight: 10
   },

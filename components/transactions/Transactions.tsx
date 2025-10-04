@@ -14,8 +14,15 @@ import transactionService, { Transaction } from '@/app/transaction.service';
 const formatCurrencyBRL = (value: number) =>
     value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-const formatDateBR = (iso: string) =>
-    new Date(iso).toLocaleDateString('pt-BR');
+ const formatDateBR = (date: string | Date) => {
+  const localDate = typeof date === "string" ? new Date(date + "T00:00:00") : date;
+  return localDate.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+};
+
 
 interface TransactionsProps {
     transactions: any[];
@@ -33,7 +40,7 @@ export default function Transactions() {
   const [editItem, setEditItem] = useState<any>(null);
   const [editFields, setEditFields] = useState({
     description: "",
-    type: "income",
+    type: "",
     amount: "",
     date: "",
     month: "",
@@ -49,7 +56,7 @@ export default function Transactions() {
     const unsubscribe = transactionService.subscribeTransactions(setTransactions);
     return () => unsubscribe();
   }, []);
-
+  
   // 🔍 Aplica filtros sempre que filtros ou transações mudam
   useEffect(() => {
     applyFilters();
@@ -216,15 +223,14 @@ export default function Transactions() {
                         keyExtractor={t => t.id.toString()}
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={false}
-                        // contentContainerStyle={{ flexGrow: 1, padding: 16 }}
                         renderItem={({ item }) => (
                             <View>
                                 <Text style={styles.month}>{item.month}</Text>
-                                {item.categoria.map(cat => (
+                                {item.categoria.map(cat =>  (
                                     <View key={cat.id} style={styles.itemRow}>
                                         <View style={{ flex: 1 }}>
                                             <Text style={styles.description}>{cat.description}</Text>
-                                            <Text style={styles.amount}>{formatCurrencyBRL(cat.amount)}</Text>
+                                            <Text style={styles.amount}>{formatCurrencyBRL(cat.type === "income" ? Math.abs(cat.amount) : -Math.abs(cat.amount))}</Text>
                                             <Text style={styles.date}>{formatDateBR(cat.date)}</Text>
                                         </View>
                                         <View style={styles.actions}>
@@ -337,7 +343,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F5F5F5',
         borderRadius: 8,
         minWidth: 282,
-        width: '96%',
+        width: '100%',
         minHeight: 480,
         paddingRight: 10
     },
