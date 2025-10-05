@@ -14,7 +14,7 @@ import userService from "./user.service";
 
 
 
-function MainPage() {  
+function MainPage() {
     const style = StyleSheet.create({
         navbar: {
             zIndex: 1
@@ -25,19 +25,19 @@ function MainPage() {
         <SafeAreaProvider>
             <SafeAreaView style={{ flex: 1 }}>
                 <KeyboardAwareScrollView
-                enableOnAndroid={true}
-                extraScrollHeight={24}
-                keyboardShouldPersistTaps="handled"
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ flexGrow: 1, padding: 16 }}>
+                    enableOnAndroid={true}
+                    extraScrollHeight={24}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ flexGrow: 1, padding: 16 }}>
                     {(
                         <View>
                             <View style={style.navbar}>
-                                    <Navbar />
+                                <Navbar />
                             </View>
-                            <WelcomeCard/>
-                            <NewTransactionCard/>
-                            <Transactions/>
+                            <WelcomeCard />
+                            <NewTransactionCard />
+                            <Transactions />
                         </View>
                     )}
                 </KeyboardAwareScrollView>

@@ -68,10 +68,9 @@ export default function Navbar() {
                                 <Text variant={'p'}>Logout</Text>
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
-
                     </DropdownMenuContent>
                 </DropdownMenu>
-                <Avatar  style={styles.avatar} alt="Zach Nugent's Avatar">
+                <Avatar style={styles.avatar} alt="Zach Nugent's Avatar">
                     <AvatarFallback>
                         <User color={"#FF5031"} />
                     </AvatarFallback>

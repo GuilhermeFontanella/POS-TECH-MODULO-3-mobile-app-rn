@@ -14,13 +14,13 @@ import transactionService, { Transaction } from '@/app/transaction.service';
 const formatCurrencyBRL = (value: number) =>
     value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
- const formatDateBR = (date: string | Date) => {
-  const localDate = typeof date === "string" ? new Date(date + "T00:00:00") : date;
-  return localDate.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+const formatDateBR = (date: string | Date) => {
+    const localDate = typeof date === "string" ? new Date(date + "T00:00:00") : date;
+    return localDate.toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+    });
 };
 
 
@@ -29,143 +29,142 @@ interface TransactionsProps {
 }
 
 export default function Transactions() {
-  const [filters, setFilters] = useState<{ date?: Date; type?: string }>({});
-  const [showDatePicker, setShowDatePicker] = useState(false);
+    const [filters, setFilters] = useState<{ date?: Date; type?: string }>({});
+    const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [filtered, setFiltered] = useState<Transaction[]>([]);
-  const [mensagemErro, setMensagemErro] = useState("");
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [filtered, setFiltered] = useState<Transaction[]>([]);
+    const [mensagemErro, setMensagemErro] = useState("");
 
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editItem, setEditItem] = useState<any>(null);
-  const [editFields, setEditFields] = useState({
-    description: "",
-    type: "",
-    amount: "",
-    date: "",
-    month: "",
-  });
-
-//🔄 usar para incluir mais dados no banco se nescessario
-//   useEffect(() => {
-//   transactionService.populateFirebase();
-// }, []);
-
-  // 🔄 Carrega transações em tempo real
-  useEffect(() => {
-    const unsubscribe = transactionService.subscribeTransactions(setTransactions);
-    return () => unsubscribe();
-  }, []);
-  
-  // 🔍 Aplica filtros sempre que filtros ou transações mudam
-  useEffect(() => {
-    applyFilters();
-  }, [filters, transactions]);
-
-  const applyFilters = () => {
-    let result = [...transactions];
-    if (filters.type) {
-      result = result
-        .map((t) => ({
-          ...t,
-          categoria: t.categoria.filter((c) => c.type === filters.type),
-        }))
-        .filter((t) => t.categoria.length);
-    }
-    if (filters.date) {
-      const d = filters.date.toISOString().split("T")[0];
-      result = result
-        .map((t) => ({
-          ...t,
-          categoria: t.categoria.filter((c) => c.date.startsWith(d)),
-        }))
-        .filter((t) => t.categoria.length);
-    }
-    setFiltered(result);
-    setMensagemErro(result.length === 0 ? "Nenhuma transação encontrada com os filtros aplicados." : "");
-  };
-
-  const clearFilters = () => {
-    setFilters({});
-    setMensagemErro("");
-  };
-
-  const openEditModal = (transactionId: string, item: any, month: string) => {
-    setEditItem({ transactionId, itemId: item.id });
-    setEditFields({
-      description: item.description,
-      type: item.type,
-      amount: item.amount.toString(),
-      date: item.date,
-      month: item.month || month,
-    });
-    setShowEditModal(true);
-  };
-  
-  const saveEdit = async () => {
-    try {
-    if (!editFields.description || !editFields.amount) return;
-    if (!editItem?.transactionId || !editFields.description || !editFields.amount) {
-    alert("Preencha todos os campos obrigatórios");
-}
-    const updatedTransactions = transactions.map((t) => {
-      if (t.id !== editItem.transactionId) return t;
-      return {
-        ...t,
-        categoria: t.categoria.map((c) =>
-          c.id === editItem.itemId
-            ? {
-                ...c,
-                description: editFields.description,
-                amount: parseFloat(editFields.amount),
-                date: editFields.date,
-                month: editFields.month,
-              }
-            : c
-        ),
-      };
-    });
-    // Atualiza no Firestore
-    await transactionService.updateTransaction(editItem.transactionId, {
-      categoria: updatedTransactions.find((t) => t.id === editItem.transactionId)?.categoria || [],
-    });
-    setShowEditModal(false);
-}  catch (error) {
-    console.error("Erro ao salvar edição:", error);
-    alert("Erro ao salvar edição. Verifique os dados e tente novamente.");
-  } 
-  };
-
-
-  const deleteCategoria = async (transactionId: string, itemId: string): Promise<void> => {
-  try {
-    // Atualiza o estado local
-    setTransactions(prevTransactions => {
-      return prevTransactions.map(transaction => {
-        if (transaction.id !== transactionId) return transaction;
-
-        const novaCategoria = transaction.categoria.filter(c => c.id !== itemId);
-        return { ...transaction, categoria: novaCategoria };
-      }).filter(transaction => transaction.categoria.length > 0);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editItem, setEditItem] = useState<any>(null);
+    const [editFields, setEditFields] = useState({
+        description: "",
+        type: "",
+        amount: "",
+        date: "",
+        month: "",
     });
 
-    // Busca a transação original
-    const transaction = transactions.find(t => t.id === transactionId);
-    if (!transaction) return;
- 
-    // Filtra a categoria atualizada 
-    const updatedCategoria = transaction.categoria.filter(c => c.id !== itemId);
+    //🔄 usar para incluir mais dados no banco se nescessario
+    //   useEffect(() => {
+    //   transactionService.populateFirebase();
+    // }, []);
 
-    // Atualiza ou remove no Firestore
-    if (updatedCategoria.length === 0) {
-      const delet = await transactionService.deleteTransaction(transactionId);
-    } else { 
-     const update =  await transactionService.updateTransaction(transaction.id, { categoria: updatedCategoria });
-    }
-  } catch (error) {
-    console.error("Erro ao excluir categoria:", error);
-  }
-};
+    // 🔄 Carrega transações em tempo real
+    useEffect(() => {
+        const unsubscribe = transactionService.subscribeTransactions(setTransactions);
+        return () => unsubscribe();
+    }, []);
+
+    // 🔍 Aplica filtros sempre que filtros ou transações mudam
+    useEffect(() => {
+        applyFilters();
+    }, [filters, transactions]);
+
+    const applyFilters = () => {
+        let result = [...transactions];
+        if (filters.type) {
+            result = result
+                .map((t) => ({
+                    ...t,
+                    categoria: t.categoria.filter((c) => c.type === filters.type),
+                }))
+                .filter((t) => t.categoria.length);
+        }
+        if (filters.date) {
+            const d = filters.date.toISOString().split("T")[0];
+            result = result
+                .map((t) => ({
+                    ...t,
+                    categoria: t.categoria.filter((c) => c.date.startsWith(d)),
+                }))
+                .filter((t) => t.categoria.length);
+        }
+        setFiltered(result);
+        setMensagemErro(result.length === 0 ? "Nenhuma transação encontrada com os filtros aplicados." : "");
+    };
+
+    const clearFilters = () => {
+        setFilters({});
+        setMensagemErro("");
+    };
+
+    const openEditModal = (transactionId: string, item: any, month: string) => {
+        setEditItem({ transactionId, itemId: item.id });
+        setEditFields({
+            description: item.description,
+            type: item.type,
+            amount: item.amount.toString(),
+            date: item.date,
+            month: item.month || month,
+        });
+        setShowEditModal(true);
+    };
+
+    const saveEdit = async () => {
+        try {
+            if (!editFields.description || !editFields.amount) return;
+            if (!editItem?.transactionId || !editFields.description || !editFields.amount) {
+                alert("Preencha todos os campos obrigatórios");
+            }
+            const updatedTransactions = transactions.map((t) => {
+                if (t.id !== editItem.transactionId) return t;
+                return {
+                    ...t,
+                    categoria: t.categoria.map((c) =>
+                        c.id === editItem.itemId
+                            ? {
+                                ...c,
+                                description: editFields.description,
+                                amount: parseFloat(editFields.amount),
+                                date: editFields.date,
+                                month: editFields.month,
+                            }
+                            : c
+                    ),
+                };
+            });
+            // Atualiza no Firestore
+            await transactionService.updateTransaction(editItem.transactionId, {
+                categoria: updatedTransactions.find((t) => t.id === editItem.transactionId)?.categoria || [],
+            });
+            setShowEditModal(false);
+        } catch (error) {
+            console.error("Erro ao salvar edição:", error);
+            alert("Erro ao salvar edição. Verifique os dados e tente novamente.");
+        }
+    };
+
+    const deleteCategoria = async (transactionId: string, itemId: string): Promise<void> => {
+        try {
+            // Atualiza o estado local
+            setTransactions(prevTransactions => {
+                return prevTransactions.map(transaction => {
+                    if (transaction.id !== transactionId) return transaction;
+
+                    const novaCategoria = transaction.categoria.filter(c => c.id !== itemId);
+                    return { ...transaction, categoria: novaCategoria };
+                }).filter(transaction => transaction.categoria.length > 0);
+            });
+
+            // Busca a transação original
+            const transaction = transactions.find(t => t.id === transactionId);
+            if (!transaction) return;
+
+            // Filtra a categoria atualizada 
+            const updatedCategoria = transaction.categoria.filter(c => c.id !== itemId);
+
+            // Atualiza ou remove no Firestore
+            if (updatedCategoria.length === 0) {
+                const delet = await transactionService.deleteTransaction(transactionId);
+            } else {
+                const update = await transactionService.updateTransaction(transaction.id, { categoria: updatedCategoria });
+            }
+        } catch (error) {
+            console.error("Erro ao excluir categoria:", error);
+        }
+    };
     return (
         <View style={styles.container}>
             {/* Filtros */}
@@ -226,7 +225,7 @@ export default function Transactions() {
                         renderItem={({ item }) => (
                             <View>
                                 <Text style={styles.month}>{item.month}</Text>
-                                {item.categoria.map(cat =>  (
+                                {item.categoria.map(cat => (
                                     <View key={cat.id} style={styles.itemRow}>
                                         <View style={{ flex: 1 }}>
                                             <Text style={styles.description}>{cat.description}</Text>
@@ -297,14 +296,6 @@ export default function Transactions() {
 }
 
 const styles = StyleSheet.create({
-    container1: {
-        padding: 20,
-        minHeight: 302,
-        display: "flex",
-        backgroundColor: "#f8f9fa",
-        borderRadius: 8,
-        margin: 16,
-    },
     filtersRowExtrato: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -364,7 +355,7 @@ const styles = StyleSheet.create({
     modalActions: {
         flexDirection: 'row',
         justifyContent: 'flex-end',
-        columnGap: 16 
+        columnGap: 16
     },
 
     header: {

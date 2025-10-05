@@ -41,12 +41,8 @@ export default function NewTransactionCard() {
   const selectOption = (key: string, label: string) => {
     setSelectedOption(label);
     setIsDropdownOpen(false);
-    setTypeSelected(key); 
+    setTypeSelected(key);
   };
-
-  // const addTransaction = () => {
-  //   console.log("Nova transação:", { selectedOption, value, receiptName });
-  // };
 
   const addTransaction = async () => {
     try {
@@ -130,8 +126,7 @@ export default function NewTransactionCard() {
           <Image
               source={PixelTop}
               className="absolute bottom-0 left-0 right-0 top-0 object-cover"
-              style={{ width: '100%', height: '550%', borderRadius: 8, backgroundColor: "#00000001", }}
-          />
+              style={{ width: '100%', height: '550%', borderRadius: 8, backgroundColor: "#00000001", }}/>
         </View> */}
       </View>
 
@@ -179,10 +174,8 @@ export default function NewTransactionCard() {
               source={PixelBottom}
               alt="Photo by Drew Beamer (https://unsplash.com/@dbeamer_jpg)"
               className="absolute bottom-0 left-0 right-0 top-0 object-cover"
-              style={{ width: '100%', height: '100%', borderRadius: 8, backgroundColor: "#00000001" }}
-          />
+              style={{ width: '100%', height: '100%', borderRadius: 8, backgroundColor: "#00000001" }} />
       </View>  */}
-
       </View>
     </View>
   );
@@ -225,18 +218,21 @@ const styles = StyleSheet.create({
     color: "#DEE9EA"
   },
   form: { marginTop: 0 },
-  dropdown: { flexDirection: "row", 
-    justifyContent: "space-between", 
-    alignItems: "center", 
+  dropdown: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 6,
-    padding: 12, 
-    backgroundColor: "#fff", 
+    padding: 12,
+    backgroundColor: "#fff",
     width: '100%',
-    borderWidth: 1, 
+    borderWidth: 1,
     borderColor: "#ccc",
-     borderRadius: 8 },
-  dropdownOptions: { position: "absolute", 
-    top: "100%",          
+    borderRadius: 8
+  },
+  dropdownOptions: {
+    position: "absolute",
+    top: "100%",
     left: 0,
     right: 0,
     backgroundColor: "#fff",
@@ -244,8 +240,9 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 6,
     marginTop: 4,
-    zIndex: 9999,           
-    elevation: 5, },
+    zIndex: 9999,
+    elevation: 5,
+  },
   option: { padding: 12 },
   input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 6, padding: 10, backgroundColor: "#fff", width: '60%' },
   primaryBtn: { backgroundColor: "#004D61", padding: 12, borderRadius: 8, alignItems: "center", flex: 1, justifyContent: 'flex-end', top: 100 },

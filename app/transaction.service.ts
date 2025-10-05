@@ -41,51 +41,35 @@ class TransactionService {
 
   async populateFirebase() {
 
-    
-// USERS
-// await setDoc(doc(db, "users", "2"), {
-//   name: "Maria",
-//   birthDay: "01/01/2000",
-//   accountId: "1"
-// });
-
-// // ACCOUNT INFO
-// await setDoc(doc(db, "accountInfo", "2"), {
-//   accountId: "1",
-//   balance: "2000.00",
-//   transactions: []
-// });
-
-// TRANSACTIONS
-await setDoc(doc(db, "transactions", "2"), {
-  month: "Setembro",
-  categoria: [
-    {
-      id: 1,
-      description: "Transferência",
-      date: "2025-05-02",
-      type: "transfer",
-      amount: 1700
-    },
-    {
-      id: 3,
-      description: "Depósito",
-      date: "2025-05-03", 
-      type: "income",
-      amount: 4500
-    },
-    {
-      id: 3,
-      description: "Despesa",
-      date: "2025-05-03", 
-      type: "income",
-      amount: 300
-    }
-  ]
-});
-  console.log("🔥 Banco populado com sucesso!");
-}
-
+    // TRANSACTIONS
+    await setDoc(doc(db, "transactions", "2"), {
+      month: "Setembro",
+      categoria: [
+        {
+          id: 1,
+          description: "Transferência",
+          date: "2025-05-02",
+          type: "transfer",
+          amount: 1700
+        },
+        {
+          id: 3,
+          description: "Depósito",
+          date: "2025-05-03",
+          type: "income",
+          amount: 4500
+        },
+        {
+          id: 3,
+          description: "Despesa",
+          date: "2025-05-03",
+          type: "income",
+          amount: 300
+        }
+      ]
+    });
+    console.log("🔥 Banco populado com sucesso!");
+  }
 
   /** 🔹 Observa transações em tempo real */
   subscribeTransactions(callback: (data: Transaction[]) => void) {
@@ -115,7 +99,7 @@ await setDoc(doc(db, "transactions", "2"), {
     });
   }
 
-  /** 🔹 Atualiza uma transação */ 
+  /** 🔹 Atualiza uma transação */
   async updateTransaction(id: string, data: Partial<Transaction>) {
     if (typeof id !== "string") throw new Error("ID inválido");
     const docRef = doc(db, "transactions", id);
@@ -126,11 +110,11 @@ await setDoc(doc(db, "transactions", "2"), {
   async deleteTransaction(id: string) {
     if (typeof id !== "string") throw new Error("ID inválido");
     const docRef = doc(db, "transactions", id);
-      const snap = await getDocs(this.collectionRef);
+    const snap = await getDocs(this.collectionRef);
     if (!snap) throw new Error("Documento não existe");
     return await deleteDoc(docRef);
   }
-  
+
   /** 🔹 Calcula o total de fundos */
   async getAccountFunds(): Promise<number> {
     const transactions = await this.getTransactions();
@@ -143,7 +127,6 @@ await setDoc(doc(db, "transactions", "2"), {
     }, 0);
   }
 }
-
 export default new TransactionService();
 
 

@@ -35,22 +35,23 @@ export default function DashboardScreen() {
   const [transactionsGraphic, setTransactions] = useState<Transaction[]>([]);
   const [filters, setFilters] = useState<{ date?: Date; type?: string }>({});
   const [filtered, setFiltered] = useState<Transaction[]>([]);
-  const [desempenhoData, setDesempenhoData] = useState<DesempenhoData>({ labels:[], datasets: [{ data:[] }] });
+  const [desempenhoData, setDesempenhoData] = useState<DesempenhoData>({ labels: [], datasets: [{ data: [] }] });
   const [gastosData, setGastosData] = useState<GastosData>({ labels: [], datasets: [{ data: [] }] });
 
-
-   useEffect(() => {
+  useEffect(() => {
     async function fetchUsers() {
       try {
         const data = await UserService.getUsers();
         setUsers(data);
         console.log("Users fetched:", data);
-        {users.map((user) => (
-          user.name
-          ))}
+        {
+          users.map((user) => (
+            user.name
+          ))
+        }
       } catch (error) {
         console.error("Erro ao buscar usuários:", error);
-      } 
+      }
     }
     fetchUsers();
   }, []);
@@ -60,95 +61,87 @@ export default function DashboardScreen() {
     return () => unsubscribe();
   }, []);
 
-useEffect(() => {
-  const unsubscribe = onSnapshot(collection(db, "transactions"), snapshot => {
-    const transactions: Transaction[] = snapshot.docs.map(doc => ({
-      ...(doc.data() as Transaction),
-    })); 
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "transactions"), snapshot => {
+      const transactions: Transaction[] = snapshot.docs.map(doc => ({
+        ...(doc.data() as Transaction),
+      }));
 
-    const total = calcularTotal(transactions);
-    setTotalAmount(total);
-    console.log("Total atualizado:", total)
-  });
+      const total = calcularTotal(transactions);
+      setTotalAmount(total);
+      console.log("Total atualizado:", total)
+    });
 
-  return () => unsubscribe();
-}, []);
-
-
-
-useEffect(() => {
-  let result = [...transactionsGraphic];
-  if (!transactionsGraphic.length) return;
-
-  const meses: string[] = [];
-  const valoresPorMes: number[] = [];
-
-  const agrupado = transactionsGraphic.reduce((acc, t) => {
-    const mes = t.month;
-    const total = t.categoria.reduce((sum, cat) => 
-      cat.type === "income" ? sum += cat.amount : sum -= cat.amount, 0) || 0;
-
-    if (!acc[mes]) acc[mes] = 0;
-    acc[mes] += total;
-    return acc;
-  }, {} as Record<string, number>);
-
-  Object.entries(agrupado).forEach(([mes, valor]) => {
-    meses.push(mes);
-    valoresPorMes.push(valor);
-  });
-  setDesempenhoData({
-    labels: meses,
-    datasets: [{ data: valoresPorMes }]
-  }); 
-  }, [transactionsGraphic]);
-  
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
-  if (!transactionsGraphic.length) return;
+    let result = [...transactionsGraphic];
+    if (!transactionsGraphic.length) return;
 
-  // Agrupa por categoria
-  const categorias: Record<string, number> = {};
+    const meses: string[] = [];
+    const valoresPorMes: number[] = [];
 
-  transactionsGraphic.forEach((t) => {
-    t.categoria.forEach((cat) => {
-      if (!categorias[cat.description]) categorias[cat.description] = 0;
-      cat.type === "income" ? categorias[cat.description] += Math.abs(cat.amount) || 0 :
-      categorias[cat.description] += -Math.abs(cat.amount)
+    const agrupado = transactionsGraphic.reduce((acc, t) => {
+      const mes = t.month;
+      const total = t.categoria.reduce((sum, cat) =>
+        cat.type === "income" ? sum += cat.amount : sum -= cat.amount, 0) || 0;
+
+      if (!acc[mes]) acc[mes] = 0;
+      acc[mes] += total;
+      return acc;
+    }, {} as Record<string, number>);
+
+    Object.entries(agrupado).forEach(([mes, valor]) => {
+      meses.push(mes);
+      valoresPorMes.push(valor);
     });
-  });
+    setDesempenhoData({
+      labels: meses,
+      datasets: [{ data: valoresPorMes }]
+    });
+  }, [transactionsGraphic]);
 
-  const labels = ['Transferência', 'Depósito', 'Despesa'];
-  const data = Object.values(categorias);
-  console.log('Gastos', labels, "=>", data) 
 
-  setGastosData({
-    labels,
-    datasets: [{ data }]
-  });
-}, [transactionsGraphic]);
-  
+  useEffect(() => {
+    if (!transactionsGraphic.length) return;
 
-const calcularTotal = (transactions: Transaction[]): number => {
-  if (!Array.isArray(transactions)) return 0;
+    // Agrupa por categoria
+    const categorias: Record<string, number> = {};
 
-  return transactions.reduce((acc, t) => {
-    const soma = t.categoria?.reduce((sum, c) => {
-      const valor = typeof c.amount === "number" ? Math.abs(c.amount) : 0;
-      return c.type === "income" ? sum + valor : sum - valor;
-    }, 0) || 0;
+    transactionsGraphic.forEach((t) => {
+      t.categoria.forEach((cat) => {
+        if (!categorias[cat.description]) categorias[cat.description] = 0;
+        cat.type === "income" ? categorias[cat.description] += Math.abs(cat.amount) || 0 :
+          categorias[cat.description] += -Math.abs(cat.amount)
+      });
+    });
 
-    return acc + soma;
-  }, 0);
-};
+    const labels = ['Transferência', 'Depósito', 'Despesa'];
+    const data = Object.values(categorias);
+    console.log('Gastos', labels, "=>", data)
 
+    setGastosData({
+      labels,
+      datasets: [{ data }]
+    });
+  }, [transactionsGraphic]);
+  const calcularTotal = (transactions: Transaction[]): number => {
+    if (!Array.isArray(transactions)) return 0;
+
+    return transactions.reduce((acc, t) => {
+      const soma = t.categoria?.reduce((sum, c) => {
+        const valor = typeof c.amount === "number" ? Math.abs(c.amount) : 0;
+        return c.type === "income" ? sum + valor : sum - valor;
+      }, 0) || 0;
+
+      return acc + soma;
+    }, 0);
+  };
   // Data de hoje formatada
   const todayDate = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
-
   return (
     <View style={styles.container}>
-      {/* Card de boas-vindas */}
-      {/* <View style={styles.card}> */}
       <Text style={styles.title}>Olá, {users[1]?.name}! :)</Text>
       <Text style={styles.date}>{todayDate}</Text>
       <View style={styles.accountInfo}>
@@ -179,7 +172,6 @@ const calcularTotal = (transactions: Transaction[]): number => {
       >
         <Text style={{ color: '#FFF', fontSize: 16 }}>📊 Visualizar Dashboard</Text>
       </TouchableOpacity>
-      {/* </View> */}
 
       {/* Modal do Dashboard */}
       <Modal
@@ -218,21 +210,6 @@ const calcularTotal = (transactions: Transaction[]): number => {
                 yAxisSuffix=""
               />
             </View>
-            {/* Meta de economia editável */}
-            <View style={styles.widget}>
-              <Text style={styles.widgetTitle}>Meta de Economia</Text>
-              <Text style={styles.widgetValue}>{formatCurrencyBRL(metaEconomia)}</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Button title="-" onPress={() => setMetaEconomia(Math.max(1000, metaEconomia - 500))} />
-                <Text style={{ marginHorizontal: 10 }}>{metaEconomia}</Text>
-                <Button title="+" onPress={() => setMetaEconomia(Math.min(20000, metaEconomia + 500))} />
-              </View>
-            </View>
-            {/* Alerta de Gastos */}
-            <View style={[styles.widget, styles.alerta]}>
-              <Text style={styles.widgetTitle}>Alerta de Gastos</Text>
-              <Text>Você está dentro do limite de gastos!</Text>
-            </View>
           </View>
         </View>
       </Modal>
@@ -252,7 +229,6 @@ const chartConfig = {
 };
 
 const styles = StyleSheet.create({
-  // container: { flex: 1, backgroundColor: '#f5f6fa', alignItems: 'center', justifyContent: 'center' },
   container: {
     flexDirection: 'column',
     alignItems: 'center',
@@ -278,26 +254,27 @@ const styles = StyleSheet.create({
   accountInfo: { marginTop: 10 },
   showAmmountButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   subtitle: { fontSize: 20, fontWeight: '600', color: "#DEE9EA", },
-  eyeButton: { marginLeft: 10,  borderRadius: 20, padding: 4 },
+  eyeButton: { marginLeft: 10, borderRadius: 20, padding: 4 },
   divider: { height: 1, backgroundColor: '#DEE9EA', marginVertical: 10, width: '100%' },
   ammountInfo: { alignItems: 'flex-start' },
   accountType: { fontSize: 14, color: '#DEE9EA' },
   ammount: { fontSize: 31, fontWeight: '400', marginTop: 2, color: "#DEE9EA", },
   dashboardButton: { marginTop: 60, backgroundColor: '#007AFF', padding: 12, borderRadius: 8, alignItems: 'center' },
-  overlay: { flex: 1, 
-    backgroundColor: 'rgba(0,0,0,0.5)', 
-    justifyContent: 'center', 
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column',
     paddingTop: 12,
     marginTop: 12,
-    
+
   },
-  modal: { backgroundColor: '#fff', borderRadius: 12, padding: 14, width: '92%', alignItems: 'center', marginTop: 15},
+  modal: { backgroundColor: '#fff', borderRadius: 12, padding: 14, width: '92%', alignItems: 'center', marginTop: 15 },
   closeBtn: { alignSelf: 'flex-end', backgroundColor: '#ff3b30', borderRadius: 20, padding: 8, marginBottom: 10 },
   modalTitle: { fontSize: 22, fontWeight: 'bold', marginBottom: 16 },
   charts: { width: '100%', alignItems: 'center', marginBottom: 20 },
-  chart: { marginVertical: 10, borderRadius: 8, borderColor: '#ff3b30',borderWidth: 1,},
+  chart: { marginVertical: 10, borderRadius: 8, borderColor: '#ff3b30', borderWidth: 1, },
   chartTitle: { fontSize: 16, fontWeight: '600', marginTop: 10 },
   widget: { backgroundColor: '#f1f2f6', borderRadius: 8, padding: 12, marginVertical: 8, width: '100%', alignItems: 'center' },
   widgetTitle: { fontSize: 16, fontWeight: 'bold' },
