@@ -33,6 +33,7 @@ function MainPage() {
                     {(
                         <View>
                             <View style={style.navbar}>
+                            <Navbar />
                             </View>
                             <WelcomeCard />
                             <NewTransactionCard />

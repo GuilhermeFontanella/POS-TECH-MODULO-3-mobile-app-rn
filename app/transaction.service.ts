@@ -68,7 +68,6 @@ class TransactionService {
         }
       ]
     });
-    console.log("🔥 Banco populado com sucesso!");
   }
 
   /** 🔹 Observa transações em tempo real */
