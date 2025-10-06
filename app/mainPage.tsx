@@ -33,7 +33,6 @@ function MainPage() {
                     {(
                         <View>
                             <View style={style.navbar}>
-                                <Navbar />
                             </View>
                             <WelcomeCard />
                             <NewTransactionCard />
@@ -42,7 +41,7 @@ function MainPage() {
                     )}
                 </KeyboardAwareScrollView>
             </SafeAreaView>
-            <PortalHost />
+            <PortalHost name="root" />
         </SafeAreaProvider>
     )
 }

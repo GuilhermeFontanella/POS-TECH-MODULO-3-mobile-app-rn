@@ -4,8 +4,6 @@ import {
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-// import PixelTop from '@/assets/images/Pixels3.png';
-// import PixelBottom from '@/assets/images/Pixels4.png';
 import transactionService, { Transaction } from '@/app/transaction.service';
 import { addDoc, collection, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { db } from "@/firebase/config";
@@ -122,12 +120,6 @@ export default function NewTransactionCard() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Nova Transação</Text>
-        {/* <View style={{ flex:1, justifyContent: 'center', alignContent: 'flex-end', width: '50%', height: '70%', position: 'absolute', bottom: 76, right: 165, borderRadius: 20,}}>
-          <Image
-              source={PixelTop}
-              className="absolute bottom-0 left-0 right-0 top-0 object-cover"
-              style={{ width: '100%', height: '550%', borderRadius: 8, backgroundColor: "#00000001", }}/>
-        </View> */}
       </View>
 
       {/* Form */}
@@ -169,13 +161,6 @@ export default function NewTransactionCard() {
         <TouchableOpacity style={styles.primaryBtn} onPress={addTransaction}>
           <Text style={{ color: "#fff" }}>Concluir transação</Text>
         </TouchableOpacity>
-        {/* <View style={{ flex:1, justifyContent: 'center', alignContent: 'flex-end', width: '50%', height: '60%', position: 'absolute', top: 265, left: 175, borderRadius: 20,}}>
-          <Image
-              source={PixelBottom}
-              alt="Photo by Drew Beamer (https://unsplash.com/@dbeamer_jpg)"
-              className="absolute bottom-0 left-0 right-0 top-0 object-cover"
-              style={{ width: '100%', height: '100%', borderRadius: 8, backgroundColor: "#00000001" }} />
-      </View>  */}
       </View>
     </View>
   );

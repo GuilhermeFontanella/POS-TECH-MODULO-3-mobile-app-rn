@@ -35,7 +35,10 @@ export const Styles = StyleSheet.create({
   },
   select: {
     width: 300,
+    height: 45,
+    fontSize: 50,
     backgroundColor: 'white',
+    color: 'red !important'
   },
   selectOptions: {
     width: 300,
@@ -59,7 +62,8 @@ export const Styles = StyleSheet.create({
     borderColor: '#000',
     borderStyle: 'solid',
     borderWidth: 1,
-    height: 36,
+    height: 50,
+    width: 300
   },
   currencyInput: {
     width: '85%',
@@ -93,5 +97,11 @@ export const Styles = StyleSheet.create({
     marginLeft: -8,
     fontSize: 30,
     fontWeight: 'bold'
-  }
+  },
+  ammountInput: {
+    marginTop: 32,
+    marginBottom: 32,
+    flexDirection: 'column',
+    alignItems: 'flex-start'
+  },
 });
