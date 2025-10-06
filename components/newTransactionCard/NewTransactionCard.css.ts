@@ -38,7 +38,7 @@ export const Styles = StyleSheet.create({
     height: 45,
     fontSize: 50,
     backgroundColor: 'white',
-    color: 'red !important'
+    color: 'red'
   },
   selectOptions: {
     width: 300,

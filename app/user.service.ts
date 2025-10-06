@@ -1,53 +1,73 @@
-import axios from 'axios';
+import { db } from "@/firebase/config";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  getDoc,
+  setDoc,
+} from "firebase/firestore";
 
-class UserService {
-    baseUrl: string = 'https://68d0a48fe6c0cbeb39a216b9.mockapi.io/byte-bank';
-
-
-    async getAccountInfo() {
-        try {
-            const response = await axios.get(`${this.baseUrl}/users/1`);
-            return response.data;
-        } catch (error: any) {
-            throw new Error(error);
-        }
-    }
-
-    async getUserTransactions(userId: number) {
-        try {
-            const response = await axios.get(`${this.baseUrl}/user-transactions`);
-            const resultsByUserId: any[] = response.data.filter((element: any) => element?.userId === userId);
-            const resultsSorted: any[] = resultsByUserId.sort((a, b) => 
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-            return resultsSorted
-        } catch (error: any) {
-            throw new Error(error);
-        }
-    }
-
-    async registerNewTransaction(data: any) {
-        try {
-            const response = await axios.post(
-                `${this.baseUrl}/user-transactions`,
-                data
-            );
-            return response.status;
-        } catch (error: any) {
-            throw new Error(error);
-        }
-    }
-
-    async editTransaction(data: any) {
-        try {
-            const response = await axios.put(
-                `${this.baseUrl}/user-transactions/${data.id}`,
-                data
-            );
-            return response.status;
-        } catch (error: any) {
-            throw new Error(error);
-        }
-    }
+// Interface do usuário
+export interface User {
+  id: string;
+  name: string;
+  birthDay: string;
+  accountId: string;
 }
 
-export default UserService;
+class UserService {
+  private collectionRef = collection(db, "users");
+
+  /** 🔹 Observa usuários em tempo real */
+  subscribeUsers(callback: (data: User[]) => void) {
+    return onSnapshot(this.collectionRef, (snapshot) => {
+      const list: User[] = snapshot.docs.map((docSnap) => ({
+        id: docSnap.id,
+        ...(docSnap.data() as Omit<User, "id">),
+      }));
+      callback(list);
+    });
+  }
+
+  /** 🔹 Busca única (sem realtime) */
+  async getUsers(): Promise<User[]> {
+    const snapshot = await getDocs(this.collectionRef);
+    return snapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...(docSnap.data() as Omit<User, "id">),
+    }));
+  }
+
+  /** 🔹 Busca usuário por ID */
+  async getUserById(id: string): Promise<User | null> {
+    const docRef = doc(db, "users", id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...(docSnap.data() as Omit<User, "id">) };
+    }
+    return null;
+  }
+
+  /** 🔹 Adiciona um novo usuário */
+  async addUser(user: Omit<User, "id">) {
+    return await addDoc(this.collectionRef, user);
+  }
+
+  /** 🔹 Atualiza um usuário */
+  async updateUser(id: string, data: Partial<User>) {
+    const docRef = doc(db, "users", id);
+    return await updateDoc(docRef, data);
+  }
+
+  /** 🔹 Remove um usuário */
+  async deleteUser(id: string) {
+    const docRef = doc(db, "users", id);
+    return await deleteDoc(docRef);
+  }
+}
+
+export default new UserService();

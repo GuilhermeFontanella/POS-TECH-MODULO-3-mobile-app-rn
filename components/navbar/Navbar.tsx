@@ -27,11 +27,10 @@ export default function Navbar() {
             justifyContent: "space-between",
             alignItems: "center",
             flex: 1,
-            marginTop: 30,
             flexDirection: 'row'
         },
         menuBar: {
-            height: 130,
+            height: 96,
             alignSelf: 'stretch',
             width: "100%",
             backgroundColor: '#004D61'
@@ -51,25 +50,27 @@ export default function Navbar() {
                             <AlignJustify color={"#FF5031"} size={32} />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent insets={contentInsets} sideOffset={-20} className="w-56" align="start">
+                    <DropdownMenuContent insets={contentInsets} sideOffset={-20} className="w-45" align="start">
                         <DropdownMenuGroup>
-                            <DropdownMenuItem onPress={() => router.navigate('/mainPage')}>
+                            <DropdownMenuItem onPress={() => router.push('/mainPage')}>
                                 <Text variant={'p'} >Início</Text>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onPress={() => router.navigate('/+not-found')}>
+                            <DropdownMenuItem onPress={() => router.push('/errorPage')}>
                                 <Text variant={'p'}>Transferências</Text>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onPress={() => router.navigate('/+not-found')}>
+                            <DropdownMenuItem onPress={() => router.push('/+not-found')}>
                                 <Text variant={'p'}>Investimentos</Text>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onPress={() => router.navigate('/+not-found')}>
+                            <DropdownMenuItem onPress={() => router.push('/+not-found')}>
                                 <Text variant={'p'}>Outros serviços</Text>
                             </DropdownMenuItem>
+                            <DropdownMenuItem onPress={() => router.push('/login')}>
+                                <Text variant={'p'}>Logout</Text>
+                            </DropdownMenuItem>
                         </DropdownMenuGroup>
-
                     </DropdownMenuContent>
                 </DropdownMenu>
-                <Avatar  style={styles.avatar} alt="Zach Nugent's Avatar">
+                <Avatar style={styles.avatar} alt="Zach Nugent's Avatar">
                     <AvatarFallback>
                         <User color={"#FF5031"} />
                     </AvatarFallback>

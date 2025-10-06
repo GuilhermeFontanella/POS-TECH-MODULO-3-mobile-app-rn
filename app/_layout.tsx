@@ -1,22 +1,33 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+import { Slot, Stack, useRouter } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';;
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import React from 'react';
+import { AuthProvider } from '@/context/AuthContext';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  console.log(colorScheme)
+  const [loaded] = useFonts({
+    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+  });
 
+  if (!loaded) {
+    return <Slot />;
+  }
+
+  SplashScreen.hideAsync();
   return (
-    <ThemeProvider value={colorScheme === 'light' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name='mainPage' options={{headerShown: false}} />
-        <Stack.Screen name='login' options={{headerShown: false}} />
-        <Stack.Screen name='+not-found' options={{headerShown: true}} />
-      </Stack>
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <AuthProvider>
+          <Stack>
+            <Stack.Screen name="+not-found" />
+          </Stack>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

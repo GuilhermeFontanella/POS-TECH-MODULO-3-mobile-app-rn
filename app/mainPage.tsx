@@ -7,74 +7,36 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { PortalHost } from "@rn-primitives/portal";
 import Transactions from "@/components/transactions/Transactions";
-import UserService from "./user.service";
 import { IUser } from "./models/user.interface";
+import transactionService from "./transaction.service";
+import userService from "./user.service";
 
 
-function MainPage() {  
-    const userService: UserService = new UserService();
-    const [user, setUser] = useState<IUser | null>(null);
-    const [transactions, setTransactions] = useState<any[]>([]);
 
+
+function MainPage() {
     const style = StyleSheet.create({
         navbar: {
             zIndex: 1
         },
     });
 
-    const getUserTransactions = async () => {
-        if (user) {
-            try {
-                const response = await userService.getUserTransactions(user.id);
-                //console.log(response)
-                setTransactions(response);
-            } catch (error: any) {
-                throw Error(error);
-            }
-        }
-    }
-
-    const getUserInfo = async () => {
-        try {
-            const response = await userService.getAccountInfo();
-            setUser(response);
-            return response;
-        } catch (error: any) {
-            throw Error(error);
-        }
-    }
-
-    useEffect(() => {
-        getUserInfo();
-    }, []);
-
-    useEffect(() => {
-        if (user) getUserTransactions();
-    }, [user]);
-
-
     return (
         <SafeAreaProvider>
-            <SafeAreaView>
+            <SafeAreaView style={{ flex: 1 }}>
                 <KeyboardAwareScrollView
-                enableOnAndroid={true}
-                extraScrollHeight={24}
-                keyboardShouldPersistTaps="handled"
-                showsVerticalScrollIndicator={false}>
-                    {user && (
+                    enableOnAndroid={true}
+                    extraScrollHeight={24}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ flexGrow: 1, padding: 16 }}>
+                    {(
                         <View>
                             <View style={style.navbar}>
-                                    <Navbar />
                             </View>
-                            <View>
-                                <WelcomeCard user={user} />
-                            </View>
-                            <View>
-                                <NewTransactionCard user={user} onRegister={() => getUserTransactions()} />
-                            </View>
-                            <View>
-                                <Transactions transactions={transactions} user={user} onRegister={() => getUserTransactions()} />
-                            </View>
+                            <WelcomeCard />
+                            <NewTransactionCard />
+                            <Transactions />
                         </View>
                     )}
                 </KeyboardAwareScrollView>
